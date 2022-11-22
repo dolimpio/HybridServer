@@ -9,7 +9,7 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 
-public class DAODB implements DAO {
+public class DAODBHTML implements DAO {
     private final String DB_URL;
     private final String DB_USER;
     private final String DB_PASSWORD;
@@ -18,7 +18,7 @@ public class DAODB implements DAO {
 
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
 
-    public DAODB(Properties properties) {
+    public DAODBHTML(Properties properties) {
         propertiesDAO = properties;
         DB_URL = propertiesDAO.getProperty("db.url");
         DB_USER = propertiesDAO.getProperty("db.user");
