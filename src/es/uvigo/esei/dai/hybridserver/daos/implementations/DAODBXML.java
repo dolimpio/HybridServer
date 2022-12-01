@@ -8,10 +8,10 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import es.uvigo.esei.dai.hybridserver.DAO;
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.XMLDAO;
 
-public class DAODBXML implements DAO {
+public class DAODBXML implements XMLDAO {
     private final String DB_URL = "jdbc:mysql://localhost:3306/hstestdb";
     private final String DB_USER = "hsdb";
     private final String DB_PASSWORD = "hsdbpass";
