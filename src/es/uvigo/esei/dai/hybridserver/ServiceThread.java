@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXML;
 import es.uvigo.esei.dai.hybridserver.http.HTTPParseException;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequestMethod;
