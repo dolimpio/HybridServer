@@ -47,7 +47,6 @@ public class HybridServer {
 		propertiesHybrid.setProperty("db.password", "hsdbpass");
 		SERVICE_PORT = Integer.parseInt(propertiesHybrid.getProperty("port"));
 		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
-		this.dao = new DAODBHTML();
 
 	}
 
@@ -59,7 +58,6 @@ public class HybridServer {
 
 	public HybridServer(Properties properties) {
 		propertiesHybrid = properties;
-		this.dao = new DAODBHTML();
 		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
 		SERVICE_PORT = Integer.parseInt(propertiesHybrid.getProperty("port"));
 

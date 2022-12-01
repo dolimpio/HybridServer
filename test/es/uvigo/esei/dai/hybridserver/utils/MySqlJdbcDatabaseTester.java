@@ -21,6 +21,7 @@ import org.dbunit.JdbcDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.ext.mysql.MySqlDataTypeFactory;
+import org.dbunit.ext.mysql.MySqlMetadataHandler;
 
 public class MySqlJdbcDatabaseTester extends JdbcDatabaseTester {
 	private final static String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
@@ -46,6 +47,10 @@ public class MySqlJdbcDatabaseTester extends JdbcDatabaseTester {
 		connection.getConfig().setProperty(
 			DatabaseConfig.PROPERTY_DATATYPE_FACTORY,
 			new MySqlDataTypeFactory()
+		);
+		connection.getConfig().setProperty(
+			DatabaseConfig.PROPERTY_METADATA_HANDLER,
+			new MySqlMetadataHandler()
 		);
 		
 		return connection;
