@@ -42,27 +42,24 @@ public class HybridServer {
 		propertiesHybrid.setProperty("port", "8888");
 		propertiesHybrid.setProperty("db.url", "jdbc:mysql://localhost:3306/hstestdb");
 		propertiesHybrid.setProperty("db.user", "hsdb");
-		propertiesHybrid.setProperty("db.password", "hsdbpass");		
+		propertiesHybrid.setProperty("db.password", "hsdbpass");
 		SERVICE_PORT = Integer.parseInt(propertiesHybrid.getProperty("port"));
-		numHilos= Integer.parseInt(propertiesHybrid.getProperty("numClients"));
-		this.dao = new DAODB(propertiesHybrid);
-
-
+		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
+		this.dao = new DAODBHTML();
 
 	}
 
 	public HybridServer(Map<String, String> pages) {
-	    SERVICE_PORT = 8888;
+		SERVICE_PORT = 8888;
 		numHilos = 50;
 		this.dao = new DAOMap(pages);
 	}
 
 	public HybridServer(Properties properties) {
 		propertiesHybrid = properties;
-		this.dao = new DAODB(propertiesHybrid);
+		this.dao = new DAODBHTML();
 		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
 		SERVICE_PORT = Integer.parseInt(propertiesHybrid.getProperty("port"));
-
 
 	}
 

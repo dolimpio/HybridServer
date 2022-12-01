@@ -6,24 +6,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
-import java.util.Properties;
 import java.util.Set;
 
 public class DAODBXSD implements DAO {
-    private final String DB_URL;
-    private final String DB_USER;
-    private final String DB_PASSWORD;
-
-    private Properties propertiesDAO;
+    private final String DB_URL = "jdbc:mysql://localhost:3306/hstestdb";
+    private final String DB_USER = "hsdb";
+    private final String DB_PASSWORD = "hsdbpass";
 
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
-
-    public DAODBXSD(Properties properties) {
-        propertiesDAO = properties;
-        DB_URL = propertiesDAO.getProperty("db.url");
-        DB_USER = propertiesDAO.getProperty("db.user");
-        DB_PASSWORD = propertiesDAO.getProperty("db.password");
-    }
 
     @Override
     public void create(String uuid, String content) throws SQLConnectionException {
@@ -33,7 +23,6 @@ public class DAODBXSD implements DAO {
                     "INSERT INTO XSD (UUID, CONTENT) VALUES (?, ?)")) {
                 statement.setString(1, uuid);
                 statement.setString(2, content);
-                int result = statement.executeUpdate();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
