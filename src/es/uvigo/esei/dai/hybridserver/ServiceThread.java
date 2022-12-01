@@ -140,9 +140,9 @@ public class ServiceThread implements Runnable {
         response.setVersion(request.getHttpVersion());
         if (!resourcesMap.containsKey("uuid")) {
             response.setStatus(HTTPResponseStatus.S200);
-            String welcomePage = "<?xml version=1.0 ?>" + "<proyecto><title>Root Page</title><integrante1>Mirandios Carou Lainho</integrante1>
-                                     <integrante2>David Olimpico Silva</integrante1>
-                                 </proyecto>";
+            String welcomePage = "<?xml version=1.0 ?>" + "<proyecto><title>Root Page</title><integrante1>Mirandios Carou Lainho</integrante1>"+
+                                     "<integrante2>David Olimpico Silva</integrante1>"+
+                                 "</proyecto>";
             response.setContent(welcomePage);
         } else if (!request.getResourceChain().contains("uuid") && request.getResourceName().equals("xml")) {
             System.out.println("esta resource name no vale baby" + request.getResourceName());
