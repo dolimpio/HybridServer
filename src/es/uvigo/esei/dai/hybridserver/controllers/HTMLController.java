@@ -9,7 +9,6 @@ import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.HTMLDAO;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
-import es.uvigo.esei.dai.hybridserver.http.HTTPRequestMethod;
 import es.uvigo.esei.dai.hybridserver.http.HTTPResponse;
 import es.uvigo.esei.dai.hybridserver.http.HTTPResponseStatus;
 
@@ -23,10 +22,30 @@ public class HTMLController {
         this.dao = new DAODBHTML();
         response = new HTTPResponse();
     }
+	public boolean validResource() {
+		return request.getResourceChain().contains("html");
+	}
+
+    public String getUUID(String content) {
+        UUID uuid = UUID.fromString(content);
+		return uuid.toString();
+	}
 
     public void getMethodHTML() throws SQLConnectionException {
-        Map<String, String> resourcesMap = request.getResourceParameters();
+
+        System.out.println("\n\nCONTENIDO DEL GET: " + request.toString() + "\n\n");
+        
+        String resourceChain = request.getResourceChain();
+        System.out.println("\n\nCADENA DE RECURSO DEL GET: " + resourceChain + "\n\n");
+
+        String contentRequest = request.getContent();
+        System.out.println("\n\nCONTENIDO DEL GET: " + contentRequest + "\n\n");
+
         String resource = request.getResourceParameters().get("uuid");
+        System.out.println("\n\nRECURSO DEL GET: " + resource + "\n\n");
+
+
+        Map<String, String> resourcesMap = request.getResourceParameters();
         response.setVersion(request.getHttpVersion());
         if (request.getResourceName().isEmpty()) {
             response.setStatus(HTTPResponseStatus.S200);
@@ -49,37 +68,59 @@ public class HTMLController {
                     + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";
             response.setContent(htmlPage);
 
-            response.putParameter("Content-Type:", "text/html; charset=ISO-8859-1");
-        } else if (!request.validResource()) {
+            response.putParameter("Content-Type", "text/html");
+        } else if (!validResource()) {
             response.setStatus(HTTPResponseStatus.S400);
         } else if (!dao.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S404);
         } else if (dao.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S200);
             response.setContent(dao.get(resource));
-            response.putParameter("Content-Type:", "text/html; charset=ISO-8859-1");
+            response.putParameter("Content-Type", "text/html");
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
+        System.out.println("\n\nRESPUESTA DEL GET: " + response.toString() + "\n\n");
+
     }
 
+
     public void postMethodHTML() throws SQLConnectionException {
-        String resource = request.getResourceParameters().get("uuid");
+        String uuid = "";
+
+        System.out.println("\n\nCONTENIDO DEL POST: " + request.toString() + "\n\n");
+        
+        String resourceChain = request.getResourceChain();
+        System.out.println("\n\nCADENA DE RECURSO DEL POST: " + resourceChain + "\n\n");
+
         String contentRequest = request.getContent();
+        System.out.println("\n\nCONTENIDO DEL POST: " + contentRequest + "\n\n");
+
+        String resource = request.getResourceParameters().get("uuid");
+        System.out.println("\n\nRECURSO DEL POST: " + resource + "\n\n");
+
+        if(resource == null){
+            uuid = UUID.randomUUID().toString();
+        }
+
         response.setVersion(request.getHttpVersion());
-        if (!request.validResource() || !contentRequest.contains("html=")) {
+        if (!contentRequest.contains("html=")) {
             response.setStatus(HTTPResponseStatus.S400);
-        } else if (!dao.exists(resource)) {
+        } else if (!dao.exists(uuid)) {
             String newContent = contentRequest.replace("html=", "");
-            String uuid = UUID.randomUUID().toString();
+            System.out.println("\n\nUUID DEL POST: " + uuid + "\n\n");
+            System.out.println("\n\nNUEVO CONTENIDO DEL POST: " + newContent + "\n\n");
             dao.create(uuid, newContent);
             String uuidHyperlink = "<a href=\"html?uuid=" + uuid + "\">" + uuid + "</a>";
             response.setContent(uuidHyperlink);
             response.setStatus(HTTPResponseStatus.S200);
-            response.putParameter("Content-Type:", "text/html; charset=ISO-8859-1");
+            response.putParameter("Content-Type", "text/html");
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
+
+        System.out.println("\n\nRESPUESTA DEL POST: " + response.toString() + "\n\n");
+
     }
 
     public void deleteMethodHTML() throws SQLConnectionException {
@@ -90,11 +131,13 @@ public class HTMLController {
             response.setStatus(HTTPResponseStatus.S200);
         } else if (!dao.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S404);
-        } else if (!request.validResource()) {
+        } else if (!validResource()) {
             response.setStatus(HTTPResponseStatus.S400);
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
+        System.out.println("\n\nRESPUESTA DEL DELETE: " + response.toString() + "\n\n");
+
     }
 
     public HTTPResponse getResponseHTML() {

@@ -24,7 +24,10 @@ import org.dbunit.ext.mysql.MySqlDataTypeFactory;
 import org.dbunit.ext.mysql.MySqlMetadataHandler;
 
 public class MySqlJdbcDatabaseTester extends JdbcDatabaseTester {
+	//private final static String MYSQL_DRIVER = "com.mysql.cj.jdbc.Driver";
+
 	private final static String MYSQL_DRIVER = "com.mysql.jdbc.Driver";
+
 
 	public MySqlJdbcDatabaseTester(String connectionUrl) throws ClassNotFoundException {
 		super(MYSQL_DRIVER, connectionUrl);

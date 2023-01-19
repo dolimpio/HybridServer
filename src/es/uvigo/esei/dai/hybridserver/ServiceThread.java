@@ -5,14 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 import es.uvigo.esei.dai.hybridserver.controllers.HTMLController;
-import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
-import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXML;
 import es.uvigo.esei.dai.hybridserver.http.HTTPParseException;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequestMethod;
@@ -23,13 +16,11 @@ public class ServiceThread implements Runnable {
     private final Socket socket;
     private final BufferedReader reader;
     private final PrintWriter writer;
-    private DAO dao;
 
     public ServiceThread(Socket clientSocket, DAO dao) throws IOException {
         this.socket = clientSocket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintWriter(socket.getOutputStream());
-        this.dao = dao;
     }
 
     @Override
@@ -44,6 +35,9 @@ public class ServiceThread implements Runnable {
 
             try {
                 String resourceTypeDoc = request.getResourceName();
+                System.out.println("AQUI EMPEZAMOS LOS PRINTS");
+                System.out.println("TIPO DEL RECURSO SOLICITADO: " + resourceTypeDoc);
+
                 HTMLController htmlController = new HTMLController(request);
 
                 switch (method.toString()) {
@@ -66,7 +60,7 @@ public class ServiceThread implements Runnable {
                     // La confianza es 10% trabajo y 90% delirio (Tina Fey)
 
                     case "DELETE":
-                        htmlController.postMethodHTML();
+                        htmlController.deleteMethodHTML();
                         response = htmlController.getResponseHTML();
                         break;
                     default:
