@@ -8,10 +8,10 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import es.uvigo.esei.dai.hybridserver.DAO;
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.HTMLDAO;
 
-public class DAODBHTML implements DAO {
+public class DAODBHTML implements HTMLDAO {
     private final String DB_URL = "jdbc:mysql://localhost:3306/hstestdb";
     private final String DB_USER = "hsdb";
     private final String DB_PASSWORD = "hsdbpass";
@@ -20,12 +20,18 @@ public class DAODBHTML implements DAO {
 
     @Override
     public void create(String uuid, String content) throws SQLConnectionException {
+        System.out.println("Llegamos a la query de create");
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO HTML (UUID, CONTENT) VALUES (?, ?)")) {
+                    "INSERT INTO HTML (uuid, content) VALUES (?,?)")) {
                 statement.setString(1, uuid);
                 statement.setString(2, content);
+                int result = statement.executeUpdate();
+
+                if (result != 1)
+                    throw new SQLException("Error creating content");
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -89,7 +95,7 @@ public class DAODBHTML implements DAO {
                 try (ResultSet result = statement.executeQuery()) {
                     result.next();
                     ret = result.getString("content");
-
+                    System.out.println("\n\n-------RESULTADO DEL GET en DAO: \n\n" + ret + "\n\n");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

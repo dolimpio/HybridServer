@@ -20,13 +20,11 @@ package es.uvigo.esei.dai.hybridserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
 
 public class HybridServer {
 	private int SERVICE_PORT;
@@ -47,19 +45,17 @@ public class HybridServer {
 		propertiesHybrid.setProperty("db.password", "hsdbpass");
 		SERVICE_PORT = Integer.parseInt(propertiesHybrid.getProperty("port"));
 		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
-		this.dao = new DAODBHTML();
 
 	}
 
-	public HybridServer(Map<String, String> pages) {
-		SERVICE_PORT = 8888;
-		numHilos = 50;
-		this.dao = new DAOMap(pages);
-	}
+	// public HybridServer(Map<String, String> pages) {
+	// 	SERVICE_PORT = 8888;
+	// 	numHilos = 50;
+	// 	this.dao = new DAOMap(pages);
+	// }
 
 	public HybridServer(Properties properties) {
 		propertiesHybrid = properties;
-		this.dao = new DAODBHTML();
 		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
 		SERVICE_PORT = Integer.parseInt(propertiesHybrid.getProperty("port"));
 

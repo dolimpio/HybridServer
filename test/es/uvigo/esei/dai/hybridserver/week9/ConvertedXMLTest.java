@@ -58,7 +58,6 @@ extends JdbcTestCase {
 			getUsername(), getPassword(), getConnectionUrl(),
 			new ArrayList<ServerConfiguration>()
 		);
-		this.server = new HybridServer(configuration);
 		this.url = String.format("http://localhost:%d/", this.server.getPort());
 		this.invalidXSLT = "12345678-abcd-1234-ab12-9876543210ab";
 		

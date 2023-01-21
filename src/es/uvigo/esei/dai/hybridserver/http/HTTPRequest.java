@@ -191,9 +191,7 @@ public class HTTPRequest {
 
 	}
 
-	public boolean validResource() {
-		return resourceChain.contains("html");
-	}
+
 
 	public boolean containsUUIDParameter() {
 		return resourceChain.contains("uuid");

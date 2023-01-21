@@ -5,13 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
-import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXML;
+import es.uvigo.esei.dai.hybridserver.controllers.HTMLController;
 import es.uvigo.esei.dai.hybridserver.http.HTTPParseException;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequestMethod;
@@ -22,13 +16,11 @@ public class ServiceThread implements Runnable {
     private final Socket socket;
     private final BufferedReader reader;
     private final PrintWriter writer;
-    private DAO dao;
 
     public ServiceThread(Socket clientSocket, DAO dao) throws IOException {
         this.socket = clientSocket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintWriter(socket.getOutputStream());
-        this.dao = dao;
     }
 
     @Override
@@ -43,33 +35,33 @@ public class ServiceThread implements Runnable {
 
             try {
                 String resourceTypeDoc = request.getResourceName();
+                System.out.println("AQUI EMPEZAMOS LOS PRINTS");
+                System.out.println("TIPO DEL RECURSO SOLICITADO: " + resourceTypeDoc);
+
+                HTMLController htmlController = new HTMLController(request);
+
                 switch (method.toString()) {
 
                     // La vida es dura. Después de todo, te mata (Katherine Hepburn)
 
                     case "GET":
-                        if (resourceTypeDoc.equals("html")) {
-                            response = getMethodHTML(request);
-                        } else if (resourceTypeDoc.equals("xml")) {
-                            response = getMethodXML(request);
-                        }
+                        htmlController.getMethodHTML();
+                        response = htmlController.getResponseHTML();
                         break;
 
                     // No te tomes la vida demasiado en serio. No saldrás de ella con vida (Elbert
                     // Hubbard)
 
                     case "POST":
-                        if (resourceTypeDoc.equals("html")) {
-                            response = postMethodHTML(request);
-                        }
+                        htmlController.postMethodHTML();
+                        response = htmlController.getResponseHTML();
                         break;
 
                     // La confianza es 10% trabajo y 90% delirio (Tina Fey)
 
                     case "DELETE":
-                        if (resourceTypeDoc.equals("html")) {
-                            response = deleteMethodHTML(request);
-                        }
+                        htmlController.deleteMethodHTML();
+                        response = htmlController.getResponseHTML();
                         break;
                     default:
                         break;
@@ -83,7 +75,9 @@ public class ServiceThread implements Runnable {
             writer.println(response.toString());
             writer.flush();
             socket.close();
-        } catch (IOException e) {
+        } catch (
+
+        IOException e) {
             e.printStackTrace();
         } catch (HTTPParseException e) {
             e.printStackTrace();
@@ -140,9 +134,9 @@ public class ServiceThread implements Runnable {
         response.setVersion(request.getHttpVersion());
         if (!resourcesMap.containsKey("uuid")) {
             response.setStatus(HTTPResponseStatus.S200);
-            String welcomePage = "<?xml version=1.0 ?>" + "<proyecto><title>Root Page</title><integrante1>Mirandios Carou Lainho</integrante1>"+
-                                     "<integrante2>David Olimpico Silva</integrante1>"+
-                                 "</proyecto>";
+            String welcomePage = "<?xml version=1.0 ?>" + "<proyecto><title>Root Page</title><integrante1>Mirandios Carou Lainho</integrante1>
+                                     <integrante2>David Olimpico Silva</integrante1>
+                                 </proyecto>";
             response.setContent(welcomePage);
         } else if (!request.getResourceChain().contains("uuid") && request.getResourceName().equals("xml")) {
             System.out.println("esta resource name no vale baby" + request.getResourceName());
