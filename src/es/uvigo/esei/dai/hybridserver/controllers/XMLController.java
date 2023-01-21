@@ -16,10 +16,12 @@ public class XMLController {
     private HTTPResponse response;
     private XMLDAO dao;
 
-    public XMLController(HTTPRequest request){
-        this.request = request;
+    public XMLController(){
         this.dao = new DAODBXML();
         this.response = new HTTPResponse();
+    }
+    public void setRequest(HTTPRequest request){
+        this.request = request;
     }
     public boolean validResource() {
 		return request.getResourceChain().contains("xml");
@@ -33,16 +35,14 @@ public class XMLController {
         System.out.println("\n\nCONTENIDO DEL GET: " + request.toString() + "\n\n");
         
         String resourceChain = request.getResourceChain();
-        System.out.println("\n\nCADENA DE RECURSO DEL GET: " + resourceChain + "\n\n");
+        System.out.println("\n\nCADENA DE RECURSO DEL GET xml: " + resourceChain + "\n\n");
 
         String contentRequest = request.getContent();
         System.out.println("\n\nCONTENIDO DEL GET: " + contentRequest + "\n\n");
 
         String resource = request.getResourceParameters().get("uuid");
         System.out.println("\n\nRECURSO DEL GET: " + resource + "\n\n");
-
-
-        Map<String, String> resourcesMap = request.getResourceParameters();
+            
         response.setVersion(request.getHttpVersion());
         if (request.getResourceName().isEmpty()) {
             response.setStatus(HTTPResponseStatus.S200);

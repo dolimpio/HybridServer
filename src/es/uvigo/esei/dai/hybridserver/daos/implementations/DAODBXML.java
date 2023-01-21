@@ -23,9 +23,14 @@ public class DAODBXML implements XMLDAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO XML (UUID, CONTENT) VALUES (?, ?)")) {
+                    "INSERT INTO XML (uuid, content) VALUES (?, ?)")) {
                 statement.setString(1, uuid);
                 statement.setString(2, content);
+                int result = statement.executeUpdate();
+
+                if (result != 1){
+                    throw new SQLException("Error create content");
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -45,8 +50,9 @@ public class DAODBXML implements XMLDAO {
                 statement.setString(2, content);
                 int result = statement.executeUpdate();
 
-                if (result != 1)
+                if (result != 1){
                     throw new SQLException("Error actualizando content");
+                }
 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -89,7 +95,7 @@ public class DAODBXML implements XMLDAO {
                 try (ResultSet result = statement.executeQuery()) {
                     result.next();
                     ret = result.getString("content");
-
+                    System.out.println("\n\n-------RESULTADO DEL GET en DAO XML: \n\n" + ret + "\n\n");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -106,12 +112,12 @@ public class DAODBXML implements XMLDAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT UUID FROM XML")) {
+                    "SELECT uuid FROM XML")) {
 
                 try (ResultSet result = statement.executeQuery()) {
 
                     while (result.next()) {
-                        uuid.add(result.getString("UUID"));
+                        uuid.add(result.getString("uuid"));
                     }
                 }
             } catch (SQLException e) {
