@@ -8,10 +8,10 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import es.uvigo.esei.dai.hybridserver.DAO;
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSDDAO;
 
-public class DAODBXSD implements DAO {
+public class DAODBXSD implements XSDDAO {
     private final String DB_URL = "jdbc:mysql://localhost:3306/hstestdb";
     private final String DB_USER = "hsdb";
     private final String DB_PASSWORD = "hsdbpass";
@@ -23,9 +23,14 @@ public class DAODBXSD implements DAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO XSD (UUID, CONTENT) VALUES (?, ?)")) {
+                    "INSERT INTO XSD (uuid, content) VALUES (?, ?)")) {
                 statement.setString(1, uuid);
                 statement.setString(2, content);
+                int result = statement.executeUpdate();
+
+                if (result != 1)
+                    throw new SQLException("Error actualizando content");
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -106,12 +111,12 @@ public class DAODBXSD implements DAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT UUID FROM XSD")) {
+                    "SELECT uuid FROM XSD")) {
 
                 try (ResultSet result = statement.executeQuery()) {
 
                     while (result.next()) {
-                        uuid.add(result.getString("UUID"));
+                        uuid.add(result.getString("uuid"));
                     }
                 }
             } catch (SQLException e) {
