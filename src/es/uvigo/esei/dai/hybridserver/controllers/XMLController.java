@@ -1,6 +1,5 @@
 package es.uvigo.esei.dai.hybridserver.controllers;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -63,7 +62,7 @@ public class XMLController {
                     + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";
             response.setContent(htmlPage);
 
-            response.putParameter("Content-Type", "text/xml");
+            response.putParameter("Content-Type", "application/xml");
         } else if (!validResource()) {
             response.setStatus(HTTPResponseStatus.S400);
         } else if (!dao.exists(resource)) {
@@ -71,7 +70,7 @@ public class XMLController {
         } else if (dao.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S200);
             response.setContent(dao.get(resource));
-            response.putParameter("Content-Type", "text/xml");
+            response.putParameter("Content-Type", "application/xml");
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
@@ -98,7 +97,7 @@ public class XMLController {
             String uuidHyperlink = "<a href=\"xml?uuid=" + uuid + "\">" + uuid + "</a>";
             response.setContent(uuidHyperlink);
             response.setStatus(HTTPResponseStatus.S200);
-            response.putParameter("Content-Type", "text/xml");
+            response.putParameter("Content-Type", "application/xml");
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
