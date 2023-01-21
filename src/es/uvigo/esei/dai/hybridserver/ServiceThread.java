@@ -39,30 +39,60 @@ public class ServiceThread implements Runnable {
                 System.out.println("AQUI EMPEZAMOS LOS PRINTS");
                 System.out.println("TIPO DEL RECURSO SOLICITADO: " + resourceTypeDoc);
 
-                HTMLController htmlController = new HTMLController(request);
+                HTMLController htmlController = new HTMLController();
+                XMLController xmlController = new XMLController();
+
+                System.out.println("AQUI instanciamos LOS controllers");
+
+                if(resourceTypeDoc.equals("html")){
+                    System.out.println("AQUI VAMOS A SETEAR");
+
+                   htmlController.setRequest(request);
+                   System.out.println("AQUI HEMOS SERTEADO");
+
+                }else if(resourceTypeDoc.equals("xml")){
+                    xmlController.setRequest(request);
+                }
+                
                 switch (method.toString()) {
-
                     // La vida es dura. Después de todo, te mata (Katherine Hepburn)
-
                     case "GET":
-                        htmlController.getMethodHTML();
-                        response = htmlController.getResponseHTML();
+                        if(resourceTypeDoc.equals("html")){
+                            htmlController.getMethodHTML();
+                            response = htmlController.getResponseHTML();
+                        }else if(resourceTypeDoc.equals("xml")){
+                            xmlController.getMethodXML();
+                            response = xmlController.getResponseXML();
+                        }
+                        
                         break;
 
                     // No te tomes la vida demasiado en serio. No saldrás de ella con vida (Elbert
                     // Hubbard)
 
                     case "POST":
-                        htmlController.postMethodHTML();
-                        response = htmlController.getResponseHTML();
+                        if(resourceTypeDoc.equals("html")){
+                            htmlController.postMethodHTML();
+                            response = htmlController.getResponseHTML();
+                        }else if(resourceTypeDoc.equals("xml")){
+                            xmlController.postMethodXML();
+                            response = xmlController.getResponseXML();
+                        }
+                        
                         break;
 
                     // La confianza es 10% trabajo y 90% delirio (Tina Fey)
 
                     case "DELETE":
-                        htmlController.deleteMethodHTML();
-                        response = htmlController.getResponseHTML();
+                        if(resourceTypeDoc.equals("html")){
+                            htmlController.deleteMethodHTML();
+                            response = htmlController.getResponseHTML();
+                        }else if(resourceTypeDoc.equals("xml")){
+                            xmlController.deleteMethodXML();
+                            response = xmlController.getResponseXML();
+                        }
                         break;
+
                     default:
                         break;
                 }
@@ -71,7 +101,6 @@ public class ServiceThread implements Runnable {
                 response.setStatus(HTTPResponseStatus.S500);
             }
             // Mucho animo Miguel, ya queda poco!!
-
             writer.println(response.toString());
             writer.flush();
             socket.close();

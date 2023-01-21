@@ -16,10 +16,13 @@ public class HTMLController {
     private HTMLDAO dao;
     private HTTPResponse response;
 
-    public HTMLController(HTTPRequest request) {
-        this.request = request;
+    public HTMLController() {
         this.dao = new DAODBHTML();
         response = new HTTPResponse();
+    }
+    
+    public void setRequest(HTTPRequest request){
+        this.request = request;
     }
 	public boolean validResource() {
 		return request.getResourceChain().contains("html");

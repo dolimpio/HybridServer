@@ -112,12 +112,12 @@ public class DAODBHTML implements HTMLDAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT UUID FROM HTML")) {
+                    "SELECT uuid FROM HTML")) {
 
                 try (ResultSet result = statement.executeQuery()) {
 
                     while (result.next()) {
-                        uuid.add(result.getString("UUID"));
+                        uuid.add(result.getString("uuid"));
                     }
                 }
             } catch (SQLException e) {
