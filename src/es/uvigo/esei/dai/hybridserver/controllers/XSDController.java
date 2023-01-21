@@ -6,24 +6,27 @@ import java.util.UUID;
 
 
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
-import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
-import es.uvigo.esei.dai.hybridserver.daos.interfaces.HTMLDAO;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSD;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSDDAO;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
 import es.uvigo.esei.dai.hybridserver.http.HTTPResponse;
 import es.uvigo.esei.dai.hybridserver.http.HTTPResponseStatus;
 
 public class XSDController {
     private HTTPRequest request;
-    private HTMLDAO dao;
+    private XSDDAO dao;
     private HTTPResponse response;
 
-    public XSDController(HTTPRequest request) {
-        this.request = request;
-        this.dao = new DAODBHTML();
-        response = new HTTPResponse();
+    public XSDController(){
+        this.dao = new DAODBXSD();
+        this.response = new HTTPResponse();
     }
+    public void setRequest(HTTPRequest request){
+        this.request = request;
+    }
+
 	public boolean validResource() {
-		return request.getResourceChain().contains("html");
+		return request.getResourceChain().contains("xsd");
 	}
 
     public String getUUID(String content) {
@@ -31,7 +34,7 @@ public class XSDController {
 		return uuid.toString();
 	}
 
-    public void getMethodHTML() throws SQLConnectionException {
+    public void getMethodXSD() throws SQLConnectionException {
 
         System.out.println("\n\nCONTENIDO DEL GET: " + request.toString() + "\n\n");
         
@@ -53,7 +56,7 @@ public class XSDController {
             String welcomePage = "<html><head> <title>Root Page</title> </head>"
                     + "<body>" + "<h1>" + pageContent + "</h1>" + "</body></html>";
             response.setContent(welcomePage);
-        } else if (request.getResourceName().equals("html") && !request.getResourceChain().contains("uuid")) {
+        } else if (request.getResourceName().equals("xsd") && !request.getResourceChain().contains("uuid")) {
             System.out.println("esta resource name no vale baby" + request.getResourceName());
             System.out.println("esta resource chain no vale baby" + request.getResourceParameters());
             response.setStatus(HTTPResponseStatus.S200);
@@ -68,7 +71,7 @@ public class XSDController {
                     + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";
             response.setContent(htmlPage);
 
-            response.putParameter("Content-Type", "text/html");
+            response.putParameter("Content-Type", "application/xml");
         } else if (!validResource()) {
             response.setStatus(HTTPResponseStatus.S400);
         } else if (!dao.exists(resource)) {
@@ -76,7 +79,7 @@ public class XSDController {
         } else if (dao.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S200);
             response.setContent(dao.get(resource));
-            response.putParameter("Content-Type", "text/html");
+            response.putParameter("Content-Type", "application/xml");
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
@@ -85,7 +88,7 @@ public class XSDController {
     }
 
 
-    public void postMethodHTML() throws SQLConnectionException {
+    public void postMethodXSD() throws SQLConnectionException {
         String uuid = "";
 
         System.out.println("\n\nCONTENIDO DEL POST: " + request.toString() + "\n\n");
@@ -104,17 +107,17 @@ public class XSDController {
         }
 
         response.setVersion(request.getHttpVersion());
-        if (!contentRequest.contains("html=")) {
+        if (!contentRequest.contains("xsd=")) {
             response.setStatus(HTTPResponseStatus.S400);
         } else if (!dao.exists(uuid)) {
-            String newContent = contentRequest.replace("html=", "");
+            String newContent = contentRequest.replace("xsd=", "");
             System.out.println("\n\nUUID DEL POST: " + uuid + "\n\n");
             System.out.println("\n\nNUEVO CONTENIDO DEL POST: " + newContent + "\n\n");
             dao.create(uuid, newContent);
-            String uuidHyperlink = "<a href=\"html?uuid=" + uuid + "\">" + uuid + "</a>";
+            String uuidHyperlink = "<a href=\"xsd?uuid=" + uuid + "\">" + uuid + "</a>";
             response.setContent(uuidHyperlink);
             response.setStatus(HTTPResponseStatus.S200);
-            response.putParameter("Content-Type", "text/html");
+            response.putParameter("Content-Type", "application/xml");
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
@@ -123,7 +126,7 @@ public class XSDController {
 
     }
 
-    public void deleteMethodHTML() throws SQLConnectionException {
+    public void deleteMethodXSD() throws SQLConnectionException {
         String resource = request.getResourceParameters().get("uuid");
         response.setVersion(request.getHttpVersion());
         if (dao.exists(resource)) {
@@ -140,7 +143,7 @@ public class XSDController {
 
     }
 
-    public HTTPResponse getResponseHTML() {
+    public HTTPResponse getResponseXSD() {
         return response;
     }
 }
