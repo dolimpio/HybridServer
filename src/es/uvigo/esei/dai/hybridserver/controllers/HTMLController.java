@@ -14,16 +14,18 @@ import es.uvigo.esei.dai.hybridserver.http.HTTPResponseStatus;
 
 public class HTMLController {
     private HTTPRequest request;
-    private HTMLDAO dao;
+    private DAODBHTML dao;
     private HTTPResponse response;
 
-    public HTMLController() {
-        this.dao = new DAODBHTML();
+    public HTMLController(DAODBHTML dao) {
+        this.dao = dao;
         response = new HTTPResponse();
     }
     
     public void setRequest(HTTPRequest request){
         this.request = request;
+        this.response.setVersion(request.getHttpVersion());
+
     }
 	public boolean validResource() {
 		return request.getResourceChain().contains("html");
@@ -49,7 +51,7 @@ public class HTMLController {
 
 
         Map<String, String> resourcesMap = request.getResourceParameters();
-        response.setVersion(request.getHttpVersion());
+
         if (request.getResourceName().isEmpty()) {
             response.setStatus(HTTPResponseStatus.S200);
             String pageContent = "Hybrid Server => Mirandios Carou Laiño, David Olímpico Silva";
@@ -106,7 +108,6 @@ public class HTMLController {
             uuid = UUID.randomUUID().toString();
         }
 
-        response.setVersion(request.getHttpVersion());
         if (!contentRequest.contains("html=")) {
             response.setStatus(HTTPResponseStatus.S400);
         } else if (!dao.exists(uuid)) {
@@ -128,7 +129,7 @@ public class HTMLController {
 
     public void deleteMethodHTML() throws SQLConnectionException {
         String resource = request.getResourceParameters().get("uuid");
-        response.setVersion(request.getHttpVersion());
+
         if (dao.exists(resource)) {
             dao.delete(resource);
             response.setStatus(HTTPResponseStatus.S200);

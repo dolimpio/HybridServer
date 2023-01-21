@@ -14,15 +14,16 @@ import es.uvigo.esei.dai.hybridserver.http.HTTPResponseStatus;
 
 public class XSDController {
     private HTTPRequest request;
-    private XSDDAO dao;
+    private DAODBXSD dao;
     private HTTPResponse response;
 
-    public XSDController(){
-        this.dao = new DAODBXSD();
+    public XSDController(DAODBXSD dao){
+        this.dao = dao;
         this.response = new HTTPResponse();
     }
     public void setRequest(HTTPRequest request){
         this.request = request;
+        this.response.setVersion(request.getHttpVersion());
     }
 
 	public boolean validResource() {
@@ -49,7 +50,6 @@ public class XSDController {
 
 
         Map<String, String> resourcesMap = request.getResourceParameters();
-        response.setVersion(request.getHttpVersion());
         if (request.getResourceName().isEmpty()) {
             response.setStatus(HTTPResponseStatus.S200);
             String pageContent = "Hybrid Server => Mirandios Carou Laiño, David Olímpico Silva";
@@ -106,7 +106,6 @@ public class XSDController {
             uuid = UUID.randomUUID().toString();
         }
 
-        response.setVersion(request.getHttpVersion());
         if (!contentRequest.contains("xsd=")) {
             response.setStatus(HTTPResponseStatus.S400);
         } else if (!dao.exists(uuid)) {
@@ -128,7 +127,6 @@ public class XSDController {
 
     public void deleteMethodXSD() throws SQLConnectionException {
         String resource = request.getResourceParameters().get("uuid");
-        response.setVersion(request.getHttpVersion());
         if (dao.exists(resource)) {
             dao.delete(resource);
             response.setStatus(HTTPResponseStatus.S200);

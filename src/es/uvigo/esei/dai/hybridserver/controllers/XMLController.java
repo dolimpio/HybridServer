@@ -13,14 +13,16 @@ import es.uvigo.esei.dai.hybridserver.http.HTTPResponseStatus;
 public class XMLController {
     private HTTPRequest request;
     private HTTPResponse response;
-    private XMLDAO dao;
+    private DAODBXML dao;
 
-    public XMLController(){
-        this.dao = new DAODBXML();
+    public XMLController(DAODBXML dao){
+        this.dao = dao;
         this.response = new HTTPResponse();
     }
     public void setRequest(HTTPRequest request){
         this.request = request;
+        this.response.setVersion(request.getHttpVersion());
+
     }
     public boolean validResource() {
 		return request.getResourceChain().contains("xml");
@@ -42,7 +44,6 @@ public class XMLController {
         String resource = request.getResourceParameters().get("uuid");
         System.out.println("\n\nRECURSO DEL GET: " + resource + "\n\n");
             
-        response.setVersion(request.getHttpVersion());
         if (request.getResourceName().isEmpty()) {
             response.setStatus(HTTPResponseStatus.S200);
             String pageContent = "Hybrid Server => Mirandios Carou Laiño, David Olímpico Silva";
@@ -88,7 +89,6 @@ public class XMLController {
             uuid = UUID.randomUUID().toString();
         }
 
-        response.setVersion(request.getHttpVersion());
         if (!contentRequest.contains("xml=")) {
             response.setStatus(HTTPResponseStatus.S400);
         } else if (!dao.exists(uuid)) {
@@ -105,7 +105,7 @@ public class XMLController {
 
     public void deleteMethodXML() throws SQLConnectionException {
         String resource = request.getResourceParameters().get("uuid");
-        response.setVersion(request.getHttpVersion());
+
         if (dao.exists(resource)) {
             dao.delete(resource);
             response.setStatus(HTTPResponseStatus.S200);

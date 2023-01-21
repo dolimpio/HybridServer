@@ -20,64 +20,122 @@ package es.uvigo.esei.dai.hybridserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import javax.jws.WebService;
+import javax.xml.ws.Endpoint;
+
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXML;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSD;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSLT;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.HTMLDAO;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.XMLDAO;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSDDAO;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSLTDAO;
 
 public class HybridServer {
-	private int SERVICE_PORT;
+	private String webService;
+	private int service_port;
+	private String dbUrl;
+	private String dbUser;
+	private String dbPassword;
 	private int numHilos;
 	private ExecutorService threadPool;
 	private Thread serverThread;
 	private boolean stop;
-	private DAO dao;
+	private DAODBHTML daoHTML;
+	private DAODBXML daoXML;
+	private DAODBXSLT daoXSLT;
+	private DAODBXSD daoXSD;
+	private List<ServerConfiguration> moreServers; 
+
 	Properties propertiesHybrid;
+	Endpoint endpoint;
 
 	public HybridServer() {
 
-		propertiesHybrid = new Properties();
-		propertiesHybrid.setProperty("numClients", "50");
-		propertiesHybrid.setProperty("port", "8888");
-		propertiesHybrid.setProperty("db.url", "jdbc:mysql://localhost:3306/hstestdb");
-		propertiesHybrid.setProperty("db.user", "hsdb");
-		propertiesHybrid.setProperty("db.password", "hsdbpass");
-		SERVICE_PORT = Integer.parseInt(propertiesHybrid.getProperty("port"));
-		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
+		daoHTML = new DAODBHTML();
+		daoXML = new DAODBXML();
+		daoXSLT = new DAODBXSLT();
+		daoXSD = new DAODBXSD();
+
+		dbPassword = "hsdbpass";
+		dbUser = "hsdb";
+		dbUrl = "jdbc:mysql://localhost:3306/hstestdb";
+		numHilos = 50;
+		service_port = 8888;
 
 	}
 
-	// public HybridServer(Map<String, String> pages) {
-	// 	SERVICE_PORT = 8888;
-	// 	numHilos = 50;
-	// 	this.dao = new DAOMap(pages);
-	// }
-	public HybridServer(Configuration conf) {}
+	public HybridServer(Configuration conf) {
+		daoHTML = new DAODBHTML();
+		daoXML = new DAODBXML();
+		daoXSLT = new DAODBXSLT();
+		daoXSD = new DAODBXSD();
+
+		webService = conf.getWebServiceURL();
+		service_port = conf.getHttpPort();
+		dbUrl = conf.getDbURL();
+		dbUser = conf.getDbUser();
+		dbPassword = conf.getDbPassword();
+		numHilos = conf.getNumClients();
+
+		moreServers = conf.getServers();
+
+	}
 
 	public HybridServer(Properties properties) {
+		daoHTML = new DAODBHTML();
+		daoXML = new DAODBXML();
+		daoXSLT = new DAODBXSLT();
+		daoXSD = new DAODBXSD();
 		propertiesHybrid = properties;
+
+		propertiesHybrid.setProperty("numClients", "50");
+ 		propertiesHybrid.setProperty("port", "8888");
+		propertiesHybrid.setProperty("db.url", "jdbc:mysql://localhost:3306/hstestdb");
+		propertiesHybrid.setProperty("db.user", "hsdb");
+		propertiesHybrid.setProperty("db.password", "hsdbpass");
+
+		dbUrl = propertiesHybrid.getProperty("db.url");
+		dbUser = propertiesHybrid.getProperty("db.user");
+		dbPassword = propertiesHybrid.getProperty("db.password");
+		
 		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
-		SERVICE_PORT = Integer.parseInt(propertiesHybrid.getProperty("port"));
+		service_port = Integer.parseInt(propertiesHybrid.getProperty("port")); 
+		numHilos = 50;
+		service_port = 8888;
 
 	}
 
 	public int getPort() {
-		return SERVICE_PORT;
+		return service_port;
 	}
 
 	public void start() {
+
+		if(webService != null){
+			endpoint = Endpoint.publish(
+				webService,
+				new HybridServerServiceImpl(daoHTML, daoXML, daoXSLT, daoXSD));
+		}
+
 		this.serverThread = new Thread() {
 			@Override
 			public void run() {
 
-				try (ServerSocket serverSocket = new ServerSocket(SERVICE_PORT)) {
+				try (ServerSocket serverSocket = new ServerSocket(service_port)) {
 					threadPool = Executors.newFixedThreadPool(numHilos);
 					while (true) {
 						Socket clientSocket = serverSocket.accept();
 						if (stop)
 							break;
-						threadPool.execute(new ServiceThread(clientSocket, dao));
+						threadPool.execute(new ServiceThread(clientSocket, daoHTML, daoXML, daoXSLT, daoXSD));
 
 					}
 				} catch (IOException e) {
@@ -92,7 +150,7 @@ public class HybridServer {
 	public void stop() {
 		this.stop = true;
 
-		try (Socket socket = new Socket("localhost", SERVICE_PORT)) {
+		try (Socket socket = new Socket("localhost", service_port)) {
 			// Esta conexión se hace, simplemente, para "despertar" el hilo servidor
 		} catch (IOException e) {
 			throw new RuntimeException(e);

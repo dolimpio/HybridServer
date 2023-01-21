@@ -18,17 +18,19 @@ import es.uvigo.esei.dai.hybridserver.http.HTTPResponseStatus;
 public class XSLTController {
     private HTTPRequest request;
     private HTTPResponse response;
-    private XSLTDAO dao;
-    private XSDDAO daoXSD;
+    private DAODBXSLT dao;
+    private DAODBXSD daoXSD;
 
-    public XSLTController() {
-        this.dao = new DAODBXSLT();
-        this.daoXSD = new DAODBXSD();
+    public XSLTController(DAODBXSLT dao, DAODBXSD daoXSD) {
+        this.dao = dao;
+        this.daoXSD = daoXSD;
         this.response = new HTTPResponse();
     }
 
     public void setRequest(HTTPRequest request) {
         this.request = request;
+        this.response.setVersion(request.getHttpVersion());
+
     }
 
     public boolean validResource() {
@@ -53,7 +55,6 @@ public class XSLTController {
         String resource = request.getResourceParameters().get("uuid");
         System.out.println("\n\nRECURSO DEL GET: " + resource + "\n\n");
 
-        response.setVersion(request.getHttpVersion());
         if (request.getResourceName().isEmpty()) {
             response.setStatus(HTTPResponseStatus.S200);
             String pageContent = "Hybrid Server => Mirandios Carou Laiño, David Olímpico Silva";
@@ -111,7 +112,6 @@ public class XSLTController {
             uuid = UUID.randomUUID().toString();
         }
 
-        response.setVersion(request.getHttpVersion());
 /* 
         System.out.println("\n\nVALOR BANDERA XSD: " + xsdParameter + " -----------\n\n");
         System.out.println("\n\nVALOR BANDERA CONTENT: " + xsdParameter + " -----------\n\n"); */
@@ -145,7 +145,6 @@ public class XSLTController {
 
     public void deleteMethodXSLT() throws SQLConnectionException {
         String resource = request.getResourceParameters().get("uuid");
-        response.setVersion(request.getHttpVersion());
         if (dao.exists(resource)) {
             dao.delete(resource);
             response.setStatus(HTTPResponseStatus.S200);
