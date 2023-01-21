@@ -10,22 +10,29 @@ import java.util.Set;
 
 import es.uvigo.esei.dai.hybridserver.DAO;
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSLTDAO;
 
-public class DAODBXSLT implements DAO {
+public class DAODBXSLT implements XSLTDAO {
     private final String DB_URL = "jdbc:mysql://localhost:3306/hstestdb";
     private final String DB_USER = "hsdb";
     private final String DB_PASSWORD = "hsdbpass";
 
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
 
-    public void createXSLT(String uuid, String content, String uuidXSD) throws SQLConnectionException {
+    public void create(String uuid, String content, String uuidXSD) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO XSLT (UUID, CONTENT, XSD) VALUES (?, ?, ?)")) {
+                    "INSERT INTO XSLT (uuid, content, xsd) VALUES (?, ?, ?)")) {
                 statement.setString(1, uuid);
                 statement.setString(2, content);
                 statement.setString(3, uuidXSD);
+
+                int result = statement.executeUpdate();
+
+                if (result != 1)
+                    throw new SQLException("Error creando content");
+
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -39,10 +46,10 @@ public class DAODBXSLT implements DAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "UPDATE XSLT SET UUID=?, CONTENT=?, XSD=?")) {
-                statement.setString(1, uuid);
-                statement.setString(2, content);
-                statement.setString(3, uuidXSD);
+                    "UPDATE XSLT SET uuid=?, content=?, xsd=?")) {
+                        statement.setString(1, uuid);
+                        statement.setString(2, content);
+                        statement.setString(3, uuidXSD);
                 int result = statement.executeUpdate();
 
                 if (result != 1)
@@ -61,7 +68,7 @@ public class DAODBXSLT implements DAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "DELETE FROM XSLT WHERE UUID=?")) {
+                    "DELETE FROM XSLT WHERE uuid=?")) {
                 statement.setString(1, uuid);
                 int result = statement.executeUpdate();
 
@@ -83,7 +90,7 @@ public class DAODBXSLT implements DAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT content FROM XSLT WHERE UUID=?")) {
+                    "SELECT content FROM XSLT WHERE uuid=?")) {
                 statement.setString(1, uuidConsulta);
 
                 try (ResultSet result = statement.executeQuery()) {
@@ -106,12 +113,12 @@ public class DAODBXSLT implements DAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT UUID FROM XSLT")) {
+                    "SELECT uuid FROM XSLT")) {
 
                 try (ResultSet result = statement.executeQuery()) {
 
                     while (result.next()) {
-                        uuid.add(result.getString("UUID"));
+                        uuid.add(result.getString("uuid"));
                     }
                 }
             } catch (SQLException e) {
@@ -131,7 +138,7 @@ public class DAODBXSLT implements DAO {
         try (Connection connection = DriverManager.getConnection(
                 DB_URL, DB_USER, DB_PASSWORD)) {
             try (PreparedStatement statement = connection.prepareStatement(
-                    "SELECT UUID FROM XSLT")) {
+                    "SELECT uuid FROM XSLT")) {
 
                 try (ResultSet result = statement.executeQuery()) {
 
@@ -150,15 +157,29 @@ public class DAODBXSLT implements DAO {
         return existe;
     }
 
-    @Override
-    public void create(String uuid, String content) throws SQLConnectionException {
-        // TODO Auto-generated method stub
-    }
 
     @Override
-    public void update(String uuid, String content) throws SQLConnectionException {
-        // TODO Auto-generated method stub
+    public String getXSD(String uuid) throws SQLConnectionException {
+        String uuidConsulta = uuid;
+        String ret = "";
+        try (Connection connection = DriverManager.getConnection(
+                DB_URL, DB_USER, DB_PASSWORD)) {
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "SELECT content, xsd FROM XSLT WHERE uuid=?")) {
+                statement.setString(1, uuidConsulta);
 
+                try (ResultSet result = statement.executeQuery()) {
+                    result.next();
+                    ret = result.getString("xsd");
+
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            throw new SQLConnectionException(e);
+        }
+        return ret;
     }
 
 }

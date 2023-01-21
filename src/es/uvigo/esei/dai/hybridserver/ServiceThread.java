@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import es.uvigo.esei.dai.hybridserver.controllers.HTMLController;
 import es.uvigo.esei.dai.hybridserver.controllers.XMLController;
+import es.uvigo.esei.dai.hybridserver.controllers.XSDController;
+import es.uvigo.esei.dai.hybridserver.controllers.XSLTController;
 import es.uvigo.esei.dai.hybridserver.http.HTTPParseException;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequestMethod;
@@ -41,6 +43,8 @@ public class ServiceThread implements Runnable {
 
                 HTMLController htmlController = new HTMLController();
                 XMLController xmlController = new XMLController();
+                XSDController xsdController = new XSDController();
+                XSLTController xsltController = new XSLTController();
 
                 System.out.println("AQUI instanciamos LOS controllers");
 
@@ -51,7 +55,16 @@ public class ServiceThread implements Runnable {
                    System.out.println("AQUI HEMOS SERTEADO");
 
                 }else if(resourceTypeDoc.equals("xml")){
+
                     xmlController.setRequest(request);
+
+                }else if (resourceTypeDoc.equals("xslt")){
+
+                    xsltController.setRequest(request);
+                    
+                }else if (resourceTypeDoc.equals("xsd")){
+                    xsdController.setRequest(request);
+
                 }
                 
                 switch (method.toString()) {
@@ -63,6 +76,12 @@ public class ServiceThread implements Runnable {
                         }else if(resourceTypeDoc.equals("xml")){
                             xmlController.getMethodXML();
                             response = xmlController.getResponseXML();
+                        }else if(resourceTypeDoc.equals("xslt")){
+                            xsltController.getMethodXSLT();
+                            response = xsltController.getResponseXSLT();
+                        }else if(resourceTypeDoc.equals("xsd")){
+                            xsdController.getMethodXSD();
+                            response = xsdController.getResponseXSD();
                         }
                         
                         break;
@@ -77,6 +96,12 @@ public class ServiceThread implements Runnable {
                         }else if(resourceTypeDoc.equals("xml")){
                             xmlController.postMethodXML();
                             response = xmlController.getResponseXML();
+                        }else if(resourceTypeDoc.equals("xslt")){
+                            xsltController.postMethodXSLT();
+                            response = xsltController.getResponseXSLT();
+                        }else if(resourceTypeDoc.equals("xsd")){
+                            xsdController.postMethodXSD();
+                            response = xsdController.getResponseXSD();
                         }
                         
                         break;
@@ -90,6 +115,12 @@ public class ServiceThread implements Runnable {
                         }else if(resourceTypeDoc.equals("xml")){
                             xmlController.deleteMethodXML();
                             response = xmlController.getResponseXML();
+                        }else if(resourceTypeDoc.equals("xslt")){
+                            xsltController.deleteMethodXSLT();
+                            response = xsltController.getResponseXSLT();
+                        }else if(resourceTypeDoc.equals("xsd")){
+                            xsdController.deleteMethodXSD();
+                            response = xsdController.getResponseXSD();
                         }
                         break;
 
