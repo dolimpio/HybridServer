@@ -53,6 +53,7 @@ public class HybridServer {
 	// 	numHilos = 50;
 	// 	this.dao = new DAOMap(pages);
 	// }
+	public HybridServer(Configuration conf) {}
 
 	public HybridServer(Properties properties) {
 		propertiesHybrid = properties;

@@ -29,7 +29,7 @@ public class DAODBXSD implements XSDDAO {
                 int result = statement.executeUpdate();
 
                 if (result != 1)
-                    throw new SQLException("Error actualizando content");
+                    throw new SQLException("Error creando content");
 
             } catch (SQLException e) {
                 e.printStackTrace();
