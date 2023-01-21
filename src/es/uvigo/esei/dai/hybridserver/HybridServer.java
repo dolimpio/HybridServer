@@ -26,6 +26,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import es.uvigo.esei.dai.hybridserver.configurations.Configuration;
+import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
+import es.uvigo.esei.dai.hybridserver.configurations.Configuration;
+
 import javax.jws.WebService;
 import javax.xml.ws.Endpoint;
 
