@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import es.uvigo.esei.dai.hybridserver.controllers.HTMLController;
+import es.uvigo.esei.dai.hybridserver.controllers.XMLController;
 import es.uvigo.esei.dai.hybridserver.http.HTTPParseException;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequestMethod;
@@ -39,7 +40,6 @@ public class ServiceThread implements Runnable {
                 System.out.println("TIPO DEL RECURSO SOLICITADO: " + resourceTypeDoc);
 
                 HTMLController htmlController = new HTMLController(request);
-
                 switch (method.toString()) {
 
                     // La vida es dura. Después de todo, te mata (Katherine Hepburn)
