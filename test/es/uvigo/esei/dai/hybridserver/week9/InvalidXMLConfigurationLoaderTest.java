@@ -26,7 +26,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import es.uvigo.esei.dai.hybridserver.configurations.XMLConfigurationLoader;
+import es.uvigo.esei.dai.hybridserver.XMLConfigurationLoader;
 
 @RunWith(Parameterized.class)
 public class InvalidXMLConfigurationLoaderTest {

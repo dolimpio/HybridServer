@@ -36,9 +36,9 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 
-import es.uvigo.esei.dai.hybridserver.configurations.Configuration;
+import es.uvigo.esei.dai.hybridserver.Configuration;
 import es.uvigo.esei.dai.hybridserver.HybridServer;
-import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
+import es.uvigo.esei.dai.hybridserver.ServerConfiguration;
 import es.uvigo.esei.dai.hybridserver.http.MIME;
 import es.uvigo.esei.dai.hybridserver.utils.JdbcTestCase;
 
@@ -62,7 +62,7 @@ extends JdbcTestCase {
 		this.url = String.format("http://localhost:%d/", this.server.getPort());
 		this.invalidXSLT = "12345678-abcd-1234-ab12-9876543210ab";
 		
-		// Estas p·ginas se insertan en la base de datos al inicio del test.
+		// Estas p√°ginas se insertan en la base de datos al inicio del test.
 		this.pages = new String[][] {
 		//  { "uuid",
 		//    "xslt",
@@ -139,7 +139,7 @@ extends JdbcTestCase {
 		
 		for (String[] page : pages) {
 			final String uuid = page[0];
-			final String xslt = page[2]; // El XML no es v·lido para el XSD
+			final String xslt = page[2]; // El XML no es v√°lido para el XSD
 			final String uuidPageURL = pageURL + "?uuid=" + uuid + "&xslt=" + xslt;
 
 			assertThat(getStatus(uuidPageURL), is(equalTo(400)));

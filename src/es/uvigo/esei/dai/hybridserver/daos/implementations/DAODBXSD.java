@@ -12,16 +12,21 @@ import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSDDAO;
 
 public class DAODBXSD implements XSDDAO {
-    private final String dbUrl; 
+    private final String dbUrl;
     private final String dbUser;
     private final String dbPassword;
+    private int service_port = 0;
 
     public DAODBXSD(String dbUrl, String dbUser, String dbPassword) {
-    	this.dbUrl = dbUrl;
-    	this.dbUser = dbUser;
-    	this.dbPassword = dbPassword;
+        this.dbUrl = dbUrl;
+        this.dbUser = dbUser;
+        this.dbPassword = dbPassword;
     }
+
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
+    public void setPort(int port) {
+        this.service_port = port;
+    }
 
     @Override
     public void create(String uuid, String content) throws SQLConnectionException {
@@ -121,7 +126,8 @@ public class DAODBXSD implements XSDDAO {
                 try (ResultSet result = statement.executeQuery()) {
 
                     while (result.next()) {
-                        uuid.add(result.getString("uuid"));
+                        uuid.add("<a href=http://localhost:" + service_port + "/xsd?uuid=" + result.getString("uuid")
+                                + ">" + result.getString("uuid") + "</a><br>");
                     }
                 }
             } catch (SQLException e) {

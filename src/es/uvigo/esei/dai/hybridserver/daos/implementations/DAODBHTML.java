@@ -12,21 +12,26 @@ import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.HTMLDAO;
 
 public class DAODBHTML implements HTMLDAO {
-    private final String dbUrl; 
+    private final String dbUrl;
     private final String dbUser;
     private final String dbPassword;
+    private int service_port = 0;
 
     public DAODBHTML(String dbUrl, String dbUser, String dbPassword) {
-    	System.out.println("---------------------------------------------");
+        System.out.println("---------------------------------------------");
 
-    	this.dbUrl = dbUrl;
-    	this.dbUser = dbUser;
-    	this.dbPassword = dbPassword;
-    	//System.out.println("DATOS CONEXION BD: " + this.dbUrl + " " + this.dbUser + " " + this.dbPassword);
-    	//System.out.println("/////////////////////////////////////////////////////////////////");
+        this.dbUrl = dbUrl;
+        this.dbUser = dbUser;
+        this.dbPassword = dbPassword;
+        System.out.println("DATOS CONEXION BD: " + this.dbUrl + " " + this.dbUser + " " + this.dbPassword);
+        // System.out.println("/////////////////////////////////////////////////////////////////");
 
     }
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
+
+    public void setPort(int port) {
+        this.service_port = port;
+    }
 
     @Override
     public void create(String uuid, String content) throws SQLConnectionException {
@@ -118,9 +123,9 @@ public class DAODBHTML implements HTMLDAO {
 
     @Override
     public Set<String> list() throws SQLConnectionException {
-    	System.out.println("/////////////////////////////////////////////////////////////////");
-    	System.out.println("listaaaaa");
-    	System.out.println("/////////////////////////////////////////////////////////////////");
+        System.out.println("/////////////////////////////////////////////////////////////////");
+        System.out.println("listaaaaa");
+        System.out.println("/////////////////////////////////////////////////////////////////");
         Set<String> uuid = new HashSet<>();
         try (Connection connection = DriverManager.getConnection(
                 dbUrl, dbUser, dbPassword)) {
@@ -130,7 +135,10 @@ public class DAODBHTML implements HTMLDAO {
                 try (ResultSet result = statement.executeQuery()) {
 
                     while (result.next()) {
-                        uuid.add(result.getString("uuid"));
+                        System.out.println("whiiileeeeeeee//////////");
+
+                        uuid.add("<a href=http://localhost:" + this.service_port + "/html?uuid="
+                                + result.getString("uuid") + ">" + result.getString("uuid") + "</a><br>");
                     }
                 }
             } catch (SQLException e) {

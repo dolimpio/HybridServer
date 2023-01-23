@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package es.uvigo.esei.dai.hybridserver.configurations;
+package es.uvigo.esei.dai.hybridserver;
 
 public class ServerConfiguration {
 	private String name;
@@ -23,17 +23,16 @@ public class ServerConfiguration {
 	private String namespace;
 	private String service;
 	private String httpAddress;
-	
+
 	public ServerConfiguration() {
 	}
-	
+
 	public ServerConfiguration(
-		String name,
-		String wsdl,
-		String namespace,
-		String service,
-		String httpAddress
-	) {
+			String name,
+			String wsdl,
+			String namespace,
+			String service,
+			String httpAddress) {
 		this.name = name;
 		this.wsdl = wsdl;
 		this.namespace = namespace;

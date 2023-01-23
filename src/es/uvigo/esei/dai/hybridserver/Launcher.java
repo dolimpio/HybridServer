@@ -18,11 +18,11 @@
 package es.uvigo.esei.dai.hybridserver;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.util.Properties;
+
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.xml.sax.SAXException;
 
 //Nunca dejes para mañana lo que puedas hacer pasado mañana (Mark Twain)
 
@@ -32,39 +32,67 @@ public class Launcher {
 		// Si pudieras patear en el trasero al responsable de casi todos tus problemas,
 		// no podrías sentarte por un mes (Theodore Roosevelt)
 
-		Properties properties = new Properties();
-		String propertiesPath;
+		// Properties properties = new Properties();
+		// String propertiesPath;
+		Configuration config;
 
+		String configPath;
+		XMLConfigurationLoader configLoader = new XMLConfigurationLoader();
+		GeneralContentHandler handler = new GeneralContentHandler();
 		if (args.length == 1) {
-			propertiesPath = args[0];
+			// propertiesPath = args[0];
+			configPath = args[0];
+			File configFile = new File(configPath);
+			try {
+				config = configLoader.parseAndValidateWithExternalXSD(configFile, "./configuration.xsd", handler);
+				// Initialize server
+				HybridServer hb = new HybridServer(config);
+				hb.start();
 
-			// read and load file
-			File propertiesFile = new File(propertiesPath);
+			} catch (ParserConfigurationException e) {
+				System.err.println("Ha ocurrido un error con el parser...");
+				e.printStackTrace();
+				System.exit(-1);
 
-			propertiesFile.createNewFile();
-			try (Reader propertiesReader = new FileReader(propertiesFile);) {
-				int intValueOfChar;
-				String targetString = "";
-
-				while ((intValueOfChar = propertiesReader.read()) != -1) {
-					targetString += (char) intValueOfChar;
-				}
-				properties.load(new StringReader(targetString));
+			} catch (SAXException e) {
+				System.err.println("Se ha producido un error parseando la configuracion...");
+				e.printStackTrace();
+				System.exit(-1);
 
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
-			if (!properties.containsKey("numClients") || !properties.containsKey("port")
-					|| !properties.containsKey("db.url") || !properties.containsKey("db.user")
-					|| !properties.containsKey("db.password")) {
-				System.out.println(
-						"Se ha producido un error cargando las propiedades. Revisa que esten todas y vuelve a intentarlo.");
-				System.exit(-1);
-			}
-			// Initialize server
-			HybridServer hb = new HybridServer(properties);
-			hb.start();
+			// read and load file
+			/*
+			 * File propertiesFile = new File(propertiesPath);
+			 * 
+			 * propertiesFile.createNewFile();
+			 * try (Reader propertiesReader = new FileReader(propertiesFile);) {
+			 * int intValueOfChar;
+			 * String targetString = "";
+			 * 
+			 * while ((intValueOfChar = propertiesReader.read()) != -1) {
+			 * targetString += (char) intValueOfChar;
+			 * }
+			 * properties.load(new StringReader(targetString));
+			 * 
+			 * } catch (IOException e) {
+			 * e.printStackTrace();
+			 * }
+			 * 
+			 * if (!properties.containsKey("numClients") || !properties.containsKey("port")
+			 * || !properties.containsKey("db.url") || !properties.containsKey("db.user")
+			 * || !properties.containsKey("db.password")) {
+			 * System.out.println(
+			 * "Se ha producido un error cargando las propiedades. Revisa que esten todas y vuelve a intentarlo."
+			 * );
+			 * System.exit(-1);
+			 * }
+			 * // Initialize server
+			 * HybridServer hb = new HybridServer(properties);
+			 * hb.start();
+			 */
 
 		} else if (args.length == 0) {
 			// Initialize server

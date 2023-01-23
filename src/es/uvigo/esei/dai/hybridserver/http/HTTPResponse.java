@@ -99,7 +99,7 @@ public class HTTPResponse {
 		} else {
 			writer.write("\r\n");
 		}
-		if (content != null ) {
+		if (!content.isEmpty() ) {
 			writer.write("Content-Length: " + content.length());
 			writer.write("\r\n\r\n" + content);
 		} else {

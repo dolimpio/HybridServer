@@ -12,16 +12,21 @@ import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XMLDAO;
 
 public class DAODBXML implements XMLDAO {
-    private final String dbUrl; 
+    private final String dbUrl;
     private final String dbUser;
     private final String dbPassword;
+    private int service_port = 0;
 
     public DAODBXML(String dbUrl, String dbUser, String dbPassword) {
-    	this.dbUrl = dbUrl;
-    	this.dbUser = dbUser;
-    	this.dbPassword = dbPassword;
+        this.dbUrl = dbUrl;
+        this.dbUser = dbUser;
+        this.dbPassword = dbPassword;
     }
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
+
+    public void setPort(int port) {
+        this.service_port = port;
+    }
 
     @Override
     public void create(String uuid, String content) throws SQLConnectionException {
@@ -33,7 +38,7 @@ public class DAODBXML implements XMLDAO {
                 statement.setString(2, content);
                 int result = statement.executeUpdate();
 
-                if (result != 1){
+                if (result != 1) {
                     throw new SQLException("Error create content");
                 }
             } catch (SQLException e) {
@@ -55,7 +60,7 @@ public class DAODBXML implements XMLDAO {
                 statement.setString(2, content);
                 int result = statement.executeUpdate();
 
-                if (result != 1){
+                if (result != 1) {
                     throw new SQLException("Error actualizando content");
                 }
 
@@ -122,7 +127,8 @@ public class DAODBXML implements XMLDAO {
                 try (ResultSet result = statement.executeQuery()) {
 
                     while (result.next()) {
-                        uuid.add(result.getString("uuid"));
+                        uuid.add("<a href=http://localhost:" + service_port + "/xml?uuid=" + result.getString("uuid")
+                                + ">" + result.getString("uuid") + "</a><br>");
                     }
                 }
             } catch (SQLException e) {

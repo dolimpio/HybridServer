@@ -8,24 +8,27 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
-import es.uvigo.esei.dai.hybridserver.DAO;
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSLTDAO;
 
 public class DAODBXSLT implements XSLTDAO {
-    private final String dbUrl; 
+    private final String dbUrl;
     private final String dbUser;
     private final String dbPassword;
-    
+    private int service_port = 0;
+
     public DAODBXSLT(String dbUrl, String dbUser, String dbPassword) {
 
-    	this.dbUrl = dbUrl;
-    	this.dbUser = dbUser;
-    	this.dbPassword = dbPassword;
-    	
+        this.dbUrl = dbUrl;
+        this.dbUser = dbUser;
+        this.dbPassword = dbPassword;
+
     }
 
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
+    public void setPort(int port) {
+        this.service_port = port;
+    }
 
     public void create(String uuid, String content, String uuidXSD) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
@@ -55,9 +58,9 @@ public class DAODBXSLT implements XSLTDAO {
                 dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "UPDATE XSLT SET uuid=?, content=?, xsd=?")) {
-                        statement.setString(1, uuid);
-                        statement.setString(2, content);
-                        statement.setString(3, uuidXSD);
+                statement.setString(1, uuid);
+                statement.setString(2, content);
+                statement.setString(3, uuidXSD);
                 int result = statement.executeUpdate();
 
                 if (result != 1)
@@ -117,7 +120,7 @@ public class DAODBXSLT implements XSLTDAO {
 
     @Override
     public Set<String> list() throws SQLConnectionException {
-    	System.out.println("HOLA BUENAS, LEGANMOS AQUI");
+        System.out.println("HOLA BUENAS, LEGANMOS AQUI");
         Set<String> uuid = new HashSet<>();
         try (Connection connection = DriverManager.getConnection(
                 dbUrl, dbUser, dbPassword)) {
@@ -127,7 +130,8 @@ public class DAODBXSLT implements XSLTDAO {
                 try (ResultSet result = statement.executeQuery()) {
 
                     while (result.next()) {
-                        uuid.add(result.getString("uuid"));
+                        uuid.add("<a href=http://localhost:" + service_port + "/xslt?uuid=" + result.getString("uuid")
+                                + ">" + result.getString("uuid") + "</a><br>");
                     }
                 }
             } catch (SQLException e) {
@@ -165,7 +169,6 @@ public class DAODBXSLT implements XSLTDAO {
         }
         return existe;
     }
-
 
     @Override
     public String getXSD(String uuid) throws SQLConnectionException {
