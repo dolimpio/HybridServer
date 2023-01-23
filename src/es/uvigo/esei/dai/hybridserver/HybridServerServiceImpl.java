@@ -4,6 +4,10 @@ import java.util.ArrayList;
 
 import javax.jws.WebService;
 
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXML;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSD;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSLT;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.HTMLDAO;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XMLDAO;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSDDAO;
@@ -12,12 +16,13 @@ import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSLTDAO;
 @WebService(endpointInterface = "es.uvigo.esei.dai.hybridserver.HybridServerService")
 public class HybridServerServiceImpl implements HybridServerService{
 
-        public HTMLDAO daoHTML;
-        public XMLDAO daoXML;
-        public XSLTDAO daoXSLT;
-        public XSDDAO daoXSD;
+        public DAODBHTML daoHTML;
+        public DAODBXML daoXML;
+        public DAODBXSLT daoXSLT;
+        public DAODBXSD daoXSD;
 
-    public HybridServerServiceImpl(HTMLDAO daoHTML, XMLDAO daoXML, XSLTDAO daoXSLT, XSDDAO daoXSD){
+    public HybridServerServiceImpl(DAODBHTML daoHTML, DAODBXML daoXML, DAODBXSLT daoXSLT, DAODBXSD daoXSD){
+
         this.daoHTML = daoHTML;
         this.daoXML = daoXML;
         this.daoXSLT = daoXSLT;
@@ -26,6 +31,7 @@ public class HybridServerServiceImpl implements HybridServerService{
 
     @Override
     public String getListHTML() throws SQLConnectionException {
+
         String result = String.join(", ", new ArrayList<>(daoHTML.list()));
         return result;
     }
@@ -50,28 +56,52 @@ public class HybridServerServiceImpl implements HybridServerService{
 
     @Override
     public String getHTML(String uuid) throws SQLConnectionException {
-        return daoHTML.get(uuid);
+    	String toret = "";
+    	if(daoHTML.exists(uuid)) {
+    		toret = daoHTML.get(uuid);
+    	}
+        return toret;
     }
 
     @Override
     public String getXML(String uuid) throws SQLConnectionException {
-        return daoXML.get(uuid);
+    	String toret = "";
+    	if(daoXML.exists(uuid)) {
+    		toret = daoXML.get(uuid);
+    	}
+        return toret;
     }
 
     @Override
     public String getXSD(String uuid) throws SQLConnectionException {
-        return daoXSD.get(uuid);
+    	String toret = "";
+    	if(daoXSD.exists(uuid)) {
+    		toret = daoXSD.get(uuid);
+    	}
+        return toret;
     }
 
     @Override
     public String getXSLT(String uuid) throws SQLConnectionException {
-        return daoXSLT.get(uuid);
+    	String toret = "";
+    	if(daoXSLT.exists(uuid)) {
+    		toret = daoXSLT.get(uuid);
+    	}
+        return toret;
     }
 
     @Override
     public String getXSDwithXSLT(String uuid) throws SQLConnectionException {
-        String xsdUUID = daoXSLT.getXSD(uuid);
-        return daoXSD.get(xsdUUID);
+    	String toret = "";
+    	if(daoXSLT.exists(uuid)) {
+            toret = daoXSLT.getXSD(uuid);
+            //if(daoXSD.exists(xsdUUID)) {
+        		//toret = daoXSD.get(uuid);
+
+            //}
+    	}
+ 
+        return toret;
     }
     
 }

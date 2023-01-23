@@ -13,15 +13,23 @@ import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSLTDAO;
 
 public class DAODBXSLT implements XSLTDAO {
-    private final String DB_URL = "jdbc:mysql://localhost:3306/hstestdb";
-    private final String DB_USER = "hsdb";
-    private final String DB_PASSWORD = "hsdbpass";
+    private final String dbUrl; 
+    private final String dbUser;
+    private final String dbPassword;
+    
+    public DAODBXSLT(String dbUrl, String dbUser, String dbPassword) {
+
+    	this.dbUrl = dbUrl;
+    	this.dbUser = dbUser;
+    	this.dbPassword = dbPassword;
+    	
+    }
 
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
 
     public void create(String uuid, String content, String uuidXSD) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO XSLT (uuid, content, xsd) VALUES (?, ?, ?)")) {
                 statement.setString(1, uuid);
@@ -44,7 +52,7 @@ public class DAODBXSLT implements XSLTDAO {
 
     public void update(String uuid, String content, String uuidXSD) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "UPDATE XSLT SET uuid=?, content=?, xsd=?")) {
                         statement.setString(1, uuid);
@@ -66,7 +74,7 @@ public class DAODBXSLT implements XSLTDAO {
     @Override
     public void delete(String uuid) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "DELETE FROM XSLT WHERE uuid=?")) {
                 statement.setString(1, uuid);
@@ -88,7 +96,7 @@ public class DAODBXSLT implements XSLTDAO {
         String uuidConsulta = uuid;
         String ret = "";
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT content FROM XSLT WHERE uuid=?")) {
                 statement.setString(1, uuidConsulta);
@@ -109,9 +117,10 @@ public class DAODBXSLT implements XSLTDAO {
 
     @Override
     public Set<String> list() throws SQLConnectionException {
+    	System.out.println("HOLA BUENAS, LEGANMOS AQUI");
         Set<String> uuid = new HashSet<>();
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT uuid FROM XSLT")) {
 
@@ -136,7 +145,7 @@ public class DAODBXSLT implements XSLTDAO {
         Set<String> uuid = new HashSet<>();
         boolean existe = false;
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT uuid FROM XSLT")) {
 
@@ -163,7 +172,7 @@ public class DAODBXSLT implements XSLTDAO {
         String uuidConsulta = uuid;
         String ret = "";
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT content, xsd FROM XSLT WHERE uuid=?")) {
                 statement.setString(1, uuidConsulta);

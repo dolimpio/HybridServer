@@ -12,16 +12,21 @@ import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSDDAO;
 
 public class DAODBXSD implements XSDDAO {
-    private final String DB_URL = "jdbc:mysql://localhost:3306/hstestdb";
-    private final String DB_USER = "hsdb";
-    private final String DB_PASSWORD = "hsdbpass";
+    private final String dbUrl; 
+    private final String dbUser;
+    private final String dbPassword;
 
+    public DAODBXSD(String dbUrl, String dbUser, String dbPassword) {
+    	this.dbUrl = dbUrl;
+    	this.dbUser = dbUser;
+    	this.dbPassword = dbPassword;
+    }
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
 
     @Override
     public void create(String uuid, String content) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO XSD (uuid, content) VALUES (?, ?)")) {
                 statement.setString(1, uuid);
@@ -43,7 +48,7 @@ public class DAODBXSD implements XSDDAO {
     @Override
     public void update(String uuid, String content) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "UPDATE XSD SET uuid=?, content=?")) {
                 statement.setString(1, uuid);
@@ -64,7 +69,7 @@ public class DAODBXSD implements XSDDAO {
     @Override
     public void delete(String uuid) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "DELETE FROM XSD WHERE uuid=?")) {
                 statement.setString(1, uuid);
@@ -86,7 +91,7 @@ public class DAODBXSD implements XSDDAO {
         String uuidConsulta = uuid;
         String ret = "";
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT content FROM XSD WHERE uuid=?")) {
                 statement.setString(1, uuidConsulta);
@@ -109,7 +114,7 @@ public class DAODBXSD implements XSDDAO {
     public Set<String> list() throws SQLConnectionException {
         Set<String> uuid = new HashSet<>();
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT uuid FROM XSD")) {
 
@@ -134,7 +139,7 @@ public class DAODBXSD implements XSDDAO {
         Set<String> uuid = new HashSet<>();
         boolean existe = false;
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT uuid FROM XSD")) {
 

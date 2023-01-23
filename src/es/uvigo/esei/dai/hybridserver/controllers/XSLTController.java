@@ -1,11 +1,15 @@
 package es.uvigo.esei.dai.hybridserver.controllers;
 
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import es.uvigo.esei.dai.hybridserver.HybridServerService;
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.ServerConnection;
 import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXML;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSD;
@@ -23,12 +27,18 @@ public class XSLTController {
     private DAODBXSLT dao;
     private DAODBXSD daoXSD;
     private List<ServerConfiguration> servers;
-
-    public XSLTController(DAODBXSLT dao, DAODBXSD daoXSD,List<ServerConfiguration> servers) {
+    private List<HybridServerService> services;
+    private ServerConnection connection;
+    private String webService;
+    
+    public XSLTController(DAODBXSLT dao, DAODBXSD daoXSD, List<ServerConfiguration> servers, String webService) {
         this.dao = dao;
         this.daoXSD = daoXSD;
-        this.response = new HTTPResponse();
         this.servers = servers;
+        this.webService = webService;
+        response = new HTTPResponse();
+        this.services = new ArrayList<HybridServerService>();
+        this.connection = new ServerConnection(this.servers, webService);
     }
 
     public void setRequest(HTTPRequest request) {
@@ -46,7 +56,7 @@ public class XSLTController {
         return uuid.toString();
     }
 
-    public void getMethodXSLT() throws SQLConnectionException {
+    public void getMethodXSLT() throws SQLConnectionException, MalformedURLException {
 
         System.out.println("\n\nCONTENIDO DEL GET: " + request.toString() + "\n\n");
 
@@ -59,41 +69,68 @@ public class XSLTController {
         String resource = request.getResourceParameters().get("uuid");
         System.out.println("\n\nRECURSO DEL GET: " + resource + "\n\n");
 
-        if (request.getResourceName().isEmpty()) {
+        if (request.getResourceName().equals("xslt") && !request.getResourceChain().contains("uuid")) {
             response.setStatus(HTTPResponseStatus.S200);
-            String pageContent = "Hybrid Server => Mirandios Carou Laiño, David Olímpico Silva";
-            String welcomePage = "<html><head> <title>Root Page</title> </head>"
-                    + "<body>" + "<h1>" + pageContent + "</h1>" + "</body></html>";
-            response.setContent(welcomePage);
-        } else if (request.getResourceName().equals("xslt") && !request.getResourceChain().contains("uuid")) {
-            response.setStatus(HTTPResponseStatus.S200);
-            Set<String> set = dao.list();
+            /*Set<String> set = dao.list();
             Iterator<String> it = set.iterator();
             String listaContent = "";
             while (it.hasNext()) {
                 String uuidProximo = it.next().toString();
                 listaContent += "<li>" + uuidProximo + "</li>";
-            }
+            }*/
+            String listadoExterior = listado();
             String htmlPage = "<html><head> <title>List</title> </head>"
-                    + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";
+                    + "<body>" + "<ul>" + listadoExterior + "</ul>" + "</body></html>";
             response.setContent(htmlPage);
 
             response.putParameter("Content-Type", "application/xml");
         } else if (!validResource()) {
             response.setStatus(HTTPResponseStatus.S400);
-        } else if (!dao.exists(resource)) {
-            response.setStatus(HTTPResponseStatus.S404);
-        } else if (dao.exists(resource)) {
+        }  else if (dao.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S200);
             response.setContent(dao.get(resource));
             response.putParameter("Content-Type", "application/xml");
+        }else if (!dao.exists(resource)) {
+        	
+        	String todosRecursos = listado();
+        	if(todosRecursos.contains(resource)) {
+                if(servers != null) {
+                    services = connection.connectToServers();
+                    for (HybridServerService serverIt : services) {
+                    	String currentContent = serverIt.getXSLT(resource);
+                    	if(!currentContent.isEmpty()) {
+                            response.setContent(currentContent);
+                            response.setStatus(HTTPResponseStatus.S200);
+                            response.putParameter("Content-Type", "application/xml");
+                    	}
+                    }
+                }
+        	}else {
+                response.setStatus(HTTPResponseStatus.S404);
+        	}
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
         System.out.println("\n\nRESPUESTA DEL GET: " + response.toString() + "\n\n");
 
     }
-
+    public String listado() throws MalformedURLException, SQLConnectionException {
+        Set<String> set = dao.list();
+        Iterator<String> it = set.iterator();
+        String listaContent = "";
+        while (it.hasNext()) {
+            String uuidProximo = it.next().toString();
+            //listaContent += "<li>" + uuidProximo + "</li>";
+            listaContent +=  uuidProximo + " "; 
+        }
+        if(servers != null) {
+       services = connection.connectToServers();
+       for (HybridServerService serverIt : services) {
+ 	    listaContent += serverIt.getListXSLT() + " ";
+       }
+        }
+    	return listaContent;
+    }
     public void postMethodXSLT() throws SQLConnectionException {
 
         String uuid = "";

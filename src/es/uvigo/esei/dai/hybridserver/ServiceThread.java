@@ -30,28 +30,30 @@ public class ServiceThread implements Runnable {
     private final BufferedReader reader;
     private final PrintWriter writer;
     private List<ServerConfiguration> servers;
-    DAODBHTML daoHTML;
-    DAODBXML daoXML;
-    DAODBXSLT daoXSLT;
-    DAODBXSD daoXSD;
-    HTMLController htmlController;
-    XMLController xmlController;
-    XSDController xsdController;
-    XSLTController xsltController;
+    private String webService;
+    private DAODBHTML daoHTML;
+    private DAODBXML daoXML;
+    private DAODBXSLT daoXSLT;
+    private DAODBXSD daoXSD;
+    private HTMLController htmlController;
+    private XMLController xmlController;
+    private XSDController xsdController;
+    private XSLTController xsltController;
     
     
-    public ServiceThread(Socket clientSocket, DAODBHTML daoHTML, DAODBXML daoXML, DAODBXSLT daoXSLT, DAODBXSD daoXSD,List<ServerConfiguration> servers)
+    public ServiceThread(Socket clientSocket, DAODBHTML daoHTML, DAODBXML daoXML, DAODBXSLT daoXSLT, DAODBXSD daoXSD, List<ServerConfiguration> servers, String webService)
             throws IOException {
-
+        System.out.println("COSNTRUCTOR SERVICE THREAD");
+        this.webService = webService;
         this.daoHTML = daoHTML;
         this.daoXML = daoXML;
         this.daoXSLT = daoXSLT;
         this.daoXSD = daoXSD;
         this.servers = servers;
-        htmlController = new HTMLController(daoHTML,servers);
-        xmlController = new XMLController(daoXML,servers);
-        xsdController = new XSDController(daoXSD,servers);
-        xsltController = new XSLTController(daoXSLT, daoXSD,servers);
+        htmlController = new HTMLController(daoHTML,servers, webService);
+        xmlController = new XMLController(daoXML, daoXSLT, daoXSD, servers, webService);
+        xsdController = new XSDController(daoXSD,servers, webService);
+        xsltController = new XSLTController(daoXSLT, daoXSD,servers, webService);
 
         this.socket = clientSocket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -60,6 +62,7 @@ public class ServiceThread implements Runnable {
 
     @Override
     public void run() {
+        System.out.println("RUN SERVICE THREAD");
 
         HTTPRequest request;
         HTTPRequestMethod method;
@@ -74,7 +77,19 @@ public class ServiceThread implements Runnable {
                 System.out.println("TIPO DEL RECURSO SOLICITADO: " + resourceTypeDoc);
 
                 System.out.println("AQUI instanciamos LOS controllers");
+                System.out.println("\n\nCONTENIDO DEL GET: " + request.toString() + "\n\n");
 
+                if (request.getResourceName().isEmpty()) {
+                    response.setStatus(HTTPResponseStatus.S200);
+                    response.setVersion(request.getHttpVersion());
+
+                    String pageContent = "Hybrid Server => Mirandios Carou Laiño, David Olimpio Silva";
+                    String welcomePage = "<html><head> <title>Root Page</title> </head>"
+                            + "<body>" + "<h1>" + pageContent + "</h1>" + "</body></html>";
+                    response.setContent(welcomePage);
+                    response.putParameter("Content-Type", "text/html");
+                }else {
+                
                 if (resourceTypeDoc.equals("html")) {
                     System.out.println("AQUI VAMOS A SETEAR");
 
@@ -154,11 +169,13 @@ public class ServiceThread implements Runnable {
                     default:
                         break;
                 }
+                }
             } catch (SQLConnectionException e) {
                 response.setVersion(request.getHttpVersion());
                 response.setStatus(HTTPResponseStatus.S500);
             }
             // Mucho animo Miguel, ya queda poco!!
+            System.out.println("respuesta guapa"+ response.toString());
             writer.println(response.toString());
             writer.flush();
             socket.close();

@@ -64,43 +64,43 @@ public class HybridServer {
 	public HybridServer() {
 		System.out.println("ENTRA EN EL CONSTRUCTOR DE HHYBRID???'");
 
-		daoHTML = new DAODBHTML();
-		daoXML = new DAODBXML();
-		daoXSLT = new DAODBXSLT();
-		daoXSD = new DAODBXSD();
-
 		dbPassword = "hsdbpass";
 		dbUser = "hsdb";
 		dbUrl = "jdbc:mysql://localhost:3306/hstestdb";
 		numHilos = 50;
 		service_port = 8888;
-
+		
+		daoHTML = new DAODBHTML(dbUrl, dbUser, dbPassword);
+		daoXML = new DAODBXML(dbUrl, dbUser, dbPassword);
+		daoXSLT = new DAODBXSLT(dbUrl, dbUser, dbPassword);
+		daoXSD = new DAODBXSD(dbUrl, dbUser, dbPassword);
 	}
 
 	public HybridServer(Configuration conf) {
-		System.out.println("ENTRA EN EL CONSTRUCTOR DE HHYBRID???'");
-		daoHTML = new DAODBHTML();
-		daoXML = new DAODBXML();
-		daoXSLT = new DAODBXSLT();
-		daoXSD = new DAODBXSD();
+		System.out.println("ENTRA EN EL CONSTRUCTOR CONFIGURACION'");
 
 		webService = conf.getWebServiceURL();
+		System.out.println("NOMBRE WEB SERVICE " + webService);
+
 		service_port = conf.getHttpPort();
 		dbUrl = conf.getDbURL();
 		dbUser = conf.getDbUser();
 		dbPassword = conf.getDbPassword();
 		numHilos = conf.getNumClients();
 		moreServers = conf.getServers();
-
+		
+		System.out.println("hacemos daooos");
+		
+		daoHTML = new DAODBHTML(dbUrl, dbUser, dbPassword);
+		daoXML = new DAODBXML(dbUrl, dbUser, dbPassword);
+		daoXSLT = new DAODBXSLT(dbUrl, dbUser, dbPassword);
+		daoXSD = new DAODBXSD(dbUrl, dbUser, dbPassword);
 	}
 
 	public HybridServer(Properties properties) {
-		System.out.println("ENTRA EN EL CONSTRUCTOR DE HHYBRID???'");
+		System.out.println("ENTRA EN EL CONSTRUCTOR PROPERTIES'");
 
-		daoHTML = new DAODBHTML();
-		daoXML = new DAODBXML();
-		daoXSLT = new DAODBXSLT();
-		daoXSD = new DAODBXSD();
+
 		propertiesHybrid = properties;
 
 		propertiesHybrid.setProperty("numClients", "50");
@@ -112,6 +112,11 @@ public class HybridServer {
 		dbUrl = propertiesHybrid.getProperty("db.url");
 		dbUser = propertiesHybrid.getProperty("db.user");
 		dbPassword = propertiesHybrid.getProperty("db.password");
+		
+		daoHTML = new DAODBHTML(dbUrl, dbUser, dbPassword);
+		daoXML = new DAODBXML(dbUrl, dbUser, dbPassword);
+		daoXSLT = new DAODBXSLT(dbUrl, dbUser, dbPassword);
+		daoXSD = new DAODBXSD(dbUrl, dbUser, dbPassword);
 		
 		numHilos = Integer.parseInt(propertiesHybrid.getProperty("numClients"));
 		service_port = Integer.parseInt(propertiesHybrid.getProperty("port")); 
@@ -125,26 +130,37 @@ public class HybridServer {
 	}
 
 	public void start() {
-		System.out.println("ENTRA EN EL CONSTRUCTOR DE HHYBRID???'");
-		ServerConnection sc = new ServerConnection(moreServers);
-		sc.print();
+		System.out.println("ENTRA EN EL START'");
+/* 		ServerConnection sc = new ServerConnection(moreServers);
+		sc.print(); */
 		if(webService != null){
+			System.out.println("ANTES DEL " + webService);
+
 			endpoint = Endpoint.publish(
 				webService,
 				new HybridServerServiceImpl(daoHTML, daoXML, daoXSLT, daoXSD));
+			System.out.println("SE PUBLICA EL SERVIOCIO????" + webService);
+
 		}
 
 		this.serverThread = new Thread() {
 			@Override
 			public void run() {
-
+				System.out.println("HACE EL RUN EN EL HYBRUD SERVER");
 				try (ServerSocket serverSocket = new ServerSocket(service_port)) {
+					System.out.println("PASA EL TRY DEL SERVICE THREAD");
 					threadPool = Executors.newFixedThreadPool(numHilos);
 					while (true) {
+
 						Socket clientSocket = serverSocket.accept();
-						if (stop)
+						
+
+						if (stop) {
+							System.out.println("ALGUIEN PARA EL SERVICIO");
 							break;
-						threadPool.execute(new ServiceThread(clientSocket, daoHTML, daoXML, daoXSLT, daoXSD,moreServers));
+						}
+						System.out.println("NO SE BLOQUEA DESPUES DEL BREAK");
+						threadPool.execute(new ServiceThread(clientSocket, daoHTML, daoXML, daoXSLT, daoXSD, moreServers, webService));
 
 					}
 				} catch (IOException e) {

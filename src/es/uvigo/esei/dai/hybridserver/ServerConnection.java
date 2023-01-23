@@ -17,19 +17,39 @@ public class ServerConnection {
 	String httpAddress */
 	List<ServerConfiguration> serverConfiguration;
 	List<HybridServerService> services;
+    private String webService;
 
-	public ServerConnection(List<ServerConfiguration> servers) {
+
+	public ServerConnection(List<ServerConfiguration> servers, String webService) {
+    	System.out.println("constructor de servicios");
+    	this.webService = webService;
 		this.serverConfiguration = servers;
 		this.services = new ArrayList<>();
 	}
 	
 	public List<HybridServerService> connectToServers()  throws MalformedURLException {
-		for (ServerConfiguration server : serverConfiguration) {
-			URL url = new URL(server.getWsdl()); 
-			QName name = new QName(server.getNamespace(),server.getService());
-			Service service = Service.create(url, name);
-			HybridServerService hybridServ = service.getPort(HybridServerService.class);
-			services.add(hybridServ);
+    	System.out.println("antes for");
+
+		for (ServerConfiguration conf : serverConfiguration) {
+				System.out.println("Configuracion para el server: " + conf.getName());
+				System.out.println("El wsld del server es: " + conf.getWsdl());
+				System.out.println("El namespace del server es: " + conf.getNamespace());
+				System.out.println("El service del server es: " + conf.getService());
+				System.out.println("El httpAddress del server es: " + conf.getHttpAddress());
+				URL url = new URL(conf.getWsdl()); 
+				String theService = conf.getService();
+				theService += "ImplService";
+		    	System.out.println("CPRUEBA SERVICE NAME" + theService);		
+				QName name = new QName(conf.getNamespace(),theService);
+				System.out.println("EL NOMBRE SERVICE ES: "+conf.getService());
+				System.out.println("EL NOMBRE ES: "+conf.getName());
+				Service service = Service.create(url, name);
+				HybridServerService hybridServ = service.getPort(HybridServerService.class);
+				services.add(hybridServ);
+		    	System.out.println("nos metemos en el for para hacer la lista de servicios");		
+			
+
+
 		}
 		return services;
 	}

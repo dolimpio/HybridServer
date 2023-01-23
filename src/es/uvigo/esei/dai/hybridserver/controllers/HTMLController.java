@@ -24,13 +24,16 @@ public class HTMLController {
     private List<ServerConfiguration> servers;
     private List<HybridServerService> services;
     private ServerConnection connection;
+    private String webService;
+
     
-    public HTMLController(DAODBHTML dao,List<ServerConfiguration> servers) {
+    public HTMLController(DAODBHTML dao, List<ServerConfiguration> servers, String webService) {
         this.dao = dao;
         this.servers = servers;
+        this.webService = webService;
         response = new HTTPResponse();
         this.services = new ArrayList<HybridServerService>();
-        this.connection = new ServerConnection(this.servers);
+        this.connection = new ServerConnection(this.servers, webService);
     }
     
     public void setRequest(HTTPRequest request){
@@ -63,48 +66,71 @@ public class HTMLController {
 
         Map<String, String> resourcesMap = request.getResourceParameters();
 
-        if (request.getResourceName().isEmpty()) {
-            response.setStatus(HTTPResponseStatus.S200);
-            String pageContent = "Hybrid Server => Mirandios Carou Laiño, David Olímpico Silva";
-            String welcomePage = "<html><head> <title>Root Page</title> </head>"
-                    + "<body>" + "<h1>" + pageContent + "</h1>" + "</body></html>";
-            response.setContent(welcomePage);
-        } else if (request.getResourceName().equals("html") && !request.getResourceChain().contains("uuid")) {
+if (request.getResourceName().equals("html") && !request.getResourceChain().contains("uuid")) {
             System.out.println("esta resource name no vale baby" + request.getResourceName());
             System.out.println("esta resource chain no vale baby" + request.getResourceParameters());
-            response.setStatus(HTTPResponseStatus.S200);
-            Set<String> set = dao.list();
-            Iterator<String> it = set.iterator();
-            String listaContent = "";
-            while (it.hasNext()) {
-                String uuidProximo = it.next().toString();
-                listaContent += "<li>" + uuidProximo + "</li>";
-            }
-           services = connection.connectToServers();
-           for (HybridServerService serverIt : services) {
-        	   listaContent += "<li>" + serverIt.getListHTML() + "</li>";
-           }
+
+
+        	   //listaContent += "<li>" + serverIt.getListHTML() + "</li>";
            
-            String htmlPage = "<html><head> <title>List</title> </head>"
-                    + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";
-            response.setContent(htmlPage);
+           
+            //String htmlPage = "<html><head> <title>List</title> </head>"
+            //        + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";
+
+            String listaContent = listado();
+            response.setStatus(HTTPResponseStatus.S200);
+
+            response.setContent(listaContent);
 
             response.putParameter("Content-Type", "text/html");
         } else if (!validResource()) {
             response.setStatus(HTTPResponseStatus.S400);
-        } else if (!dao.exists(resource)) {
-            response.setStatus(HTTPResponseStatus.S404);
         } else if (dao.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S200);
             response.setContent(dao.get(resource));
             response.putParameter("Content-Type", "text/html");
-        } else {
+        }else if (!dao.exists(resource)) {
+        	String todosRecursos = listado();
+        	if(todosRecursos.contains(resource)) {
+                if(servers != null) {
+                    services = connection.connectToServers();
+                    for (HybridServerService serverIt : services) {
+                    	String currentContent = serverIt.getHTML(resource);
+                    	if(!currentContent.isEmpty()) {
+                            response.setContent(currentContent);
+                            response.setStatus(HTTPResponseStatus.S200);
+                            response.putParameter("Content-Type", "text/html");
+                    	}
+                    }
+                }    
+        	}else {
+                response.setStatus(HTTPResponseStatus.S404);
+        	}
+        
+        }  else {
             response.setStatus(HTTPResponseStatus.S500);
         }
         System.out.println("\n\nRESPUESTA DEL GET: " + response.toString() + "\n\n");
 
     }
-
+    
+    public String listado() throws MalformedURLException, SQLConnectionException {
+        Set<String> set = dao.list();
+        Iterator<String> it = set.iterator();
+        String listaContent = "";
+        while (it.hasNext()) {
+            String uuidProximo = it.next().toString();
+            //listaContent += "<li>" + uuidProximo + "</li>";
+            listaContent +=  uuidProximo + " "; 
+        }
+        if(servers != null) {
+       services = connection.connectToServers();
+       for (HybridServerService serverIt : services) {
+ 	    listaContent += serverIt.getListHTML() + " ";
+       }
+        }
+    	return listaContent;
+    }
 
     public void postMethodHTML() throws SQLConnectionException {
         String uuid = "";

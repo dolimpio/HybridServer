@@ -1,13 +1,17 @@
 package es.uvigo.esei.dai.hybridserver.controllers;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-
+import es.uvigo.esei.dai.hybridserver.HybridServerService;
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.ServerConnection;
 import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
+import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSD;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSDDAO;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
@@ -16,14 +20,20 @@ import es.uvigo.esei.dai.hybridserver.http.HTTPResponseStatus;
 
 public class XSDController {
     private HTTPRequest request;
-    private DAODBXSD dao;
+    private DAODBXSD daoXSD;
     private HTTPResponse response;
     private List<ServerConfiguration> servers;
+    private List<HybridServerService> services;
+    private ServerConnection connection;
+    private String webService;
     
-    public XSDController(DAODBXSD dao,List<ServerConfiguration> servers){
-        this.dao = dao;
+    public XSDController(DAODBXSD daoXSD, List<ServerConfiguration> servers, String webService) {
+        this.daoXSD = daoXSD;
         this.response = new HTTPResponse();
         this.servers = servers;
+        response = new HTTPResponse();
+        this.services = new ArrayList<HybridServerService>();
+        this.connection = new ServerConnection(this.servers, webService);
     }
     public void setRequest(HTTPRequest request){
         this.request = request;
@@ -39,7 +49,7 @@ public class XSDController {
 		return uuid.toString();
 	}
 
-    public void getMethodXSD() throws SQLConnectionException {
+    public void getMethodXSD() throws SQLConnectionException, MalformedURLException {
 
         System.out.println("\n\nCONTENIDO DEL GET: " + request.toString() + "\n\n");
         
@@ -54,17 +64,11 @@ public class XSDController {
 
 
         Map<String, String> resourcesMap = request.getResourceParameters();
-        if (request.getResourceName().isEmpty()) {
-            response.setStatus(HTTPResponseStatus.S200);
-            String pageContent = "Hybrid Server => Mirandios Carou Laiño, David Olímpico Silva";
-            String welcomePage = "<html><head> <title>Root Page</title> </head>"
-                    + "<body>" + "<h1>" + pageContent + "</h1>" + "</body></html>";
-            response.setContent(welcomePage);
-        } else if (request.getResourceName().equals("xsd") && !request.getResourceChain().contains("uuid")) {
+        if (request.getResourceName().equals("xsd") && !request.getResourceChain().contains("uuid")) {
             System.out.println("esta resource name no vale baby" + request.getResourceName());
             System.out.println("esta resource chain no vale baby" + request.getResourceParameters());
             response.setStatus(HTTPResponseStatus.S200);
-            Set<String> set = dao.list();
+            /*Set<String> set = dao.list();
             Iterator<String> it = set.iterator();
             String listaContent = "";
             while (it.hasNext()) {
@@ -72,25 +76,65 @@ public class XSDController {
                 listaContent += "<li>" + uuidProximo + "</li>";
             }
             String htmlPage = "<html><head> <title>List</title> </head>"
-                    + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";
+                    + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";*/
+            String htmlPage = listado();
             response.setContent(htmlPage);
+            response.putParameter("Content-Type", "text/html");
+
 
             response.putParameter("Content-Type", "application/xml");
         } else if (!validResource()) {
             response.setStatus(HTTPResponseStatus.S400);
-        } else if (!dao.exists(resource)) {
-            response.setStatus(HTTPResponseStatus.S404);
-        } else if (dao.exists(resource)) {
+        } else if (daoXSD.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S200);
-            response.setContent(dao.get(resource));
+            response.setContent(daoXSD.get(resource));
             response.putParameter("Content-Type", "application/xml");
+        } else if (!daoXSD.exists(resource)) {
+ 
+        	
+        	String todosRecursos = listado();
+        	if(todosRecursos.contains(resource)) {
+                if(servers != null) {
+                    services = connection.connectToServers();
+                    for (HybridServerService serverIt : services) {
+                    	String currentContent = serverIt.getXSD(resource);
+                    	if(!currentContent.isEmpty()) {
+                            response.setContent(currentContent);
+                            response.setStatus(HTTPResponseStatus.S200);
+                            response.putParameter("Content-Type", "application/xml");
+                    	}
+                    }
+                }  
+        	}else {
+                response.setStatus(HTTPResponseStatus.S404);
+        	}
+        	
+        	
         } else {
             response.setStatus(HTTPResponseStatus.S500);
         }
         System.out.println("\n\nRESPUESTA DEL GET: " + response.toString() + "\n\n");
 
     }
+    
+    public String listado() throws MalformedURLException, SQLConnectionException {
+        Set<String> set = daoXSD.list();
+        Iterator<String> it = set.iterator();
+        String listaContent = "";
+        while (it.hasNext()) {
+            String uuidProximo = it.next().toString();
+            //listaContent += "<li>" + uuidProximo + "</li>";
+            listaContent +=  uuidProximo + " //"; 
+        }
+        if(servers != null) {
+            services = connection.connectToServers();
+            for (HybridServerService serverIt : services) {
+      	    listaContent += serverIt.getListXSD() + " // ";
+            }  	
+        }
 
+    	return listaContent;
+    }
 
     public void postMethodXSD() throws SQLConnectionException {
         String uuid = "";
@@ -112,11 +156,11 @@ public class XSDController {
 
         if (!contentRequest.contains("xsd=")) {
             response.setStatus(HTTPResponseStatus.S400);
-        } else if (!dao.exists(uuid)) {
+        } else if (!daoXSD.exists(uuid)) {
             String newContent = contentRequest.replace("xsd=", "");
             System.out.println("\n\nUUID DEL POST: " + uuid + "\n\n");
             System.out.println("\n\nNUEVO CONTENIDO DEL POST: " + newContent + "\n\n");
-            dao.create(uuid, newContent);
+            daoXSD.create(uuid, newContent);
             String uuidHyperlink = "<a href=\"xsd?uuid=" + uuid + "\">" + uuid + "</a>";
             response.setContent(uuidHyperlink);
             response.setStatus(HTTPResponseStatus.S200);
@@ -131,10 +175,10 @@ public class XSDController {
 
     public void deleteMethodXSD() throws SQLConnectionException {
         String resource = request.getResourceParameters().get("uuid");
-        if (dao.exists(resource)) {
-            dao.delete(resource);
+        if (daoXSD.exists(resource)) {
+        	daoXSD.delete(resource);
             response.setStatus(HTTPResponseStatus.S200);
-        } else if (!dao.exists(resource)) {
+        } else if (!daoXSD.exists(resource)) {
             response.setStatus(HTTPResponseStatus.S404);
         } else if (!validResource()) {
             response.setStatus(HTTPResponseStatus.S400);

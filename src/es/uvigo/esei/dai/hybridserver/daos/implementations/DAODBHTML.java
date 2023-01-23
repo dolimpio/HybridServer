@@ -12,17 +12,27 @@ import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.HTMLDAO;
 
 public class DAODBHTML implements HTMLDAO {
-    private final String DB_URL = "jdbc:mysql://localhost:3306/hstestdb";
-    private final String DB_USER = "hsdb";
-    private final String DB_PASSWORD = "hsdbpass";
+    private final String dbUrl; 
+    private final String dbUser;
+    private final String dbPassword;
 
+    public DAODBHTML(String dbUrl, String dbUser, String dbPassword) {
+    	System.out.println("---------------------------------------------");
+
+    	this.dbUrl = dbUrl;
+    	this.dbUser = dbUser;
+    	this.dbPassword = dbPassword;
+    	//System.out.println("DATOS CONEXION BD: " + this.dbUrl + " " + this.dbUser + " " + this.dbPassword);
+    	//System.out.println("/////////////////////////////////////////////////////////////////");
+
+    }
     // Trabajar no es malo, lo malo es tener que trabajar (Don Ramón)
 
     @Override
     public void create(String uuid, String content) throws SQLConnectionException {
         System.out.println("Llegamos a la query de create");
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "INSERT INTO HTML (uuid, content) VALUES (?,?)")) {
                 statement.setString(1, uuid);
@@ -44,7 +54,7 @@ public class DAODBHTML implements HTMLDAO {
     @Override
     public void update(String uuid, String content) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "UPDATE HTML SET uuid=?, content=?")) {
                 statement.setString(1, uuid);
@@ -65,7 +75,7 @@ public class DAODBHTML implements HTMLDAO {
     @Override
     public void delete(String uuid) throws SQLConnectionException {
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "DELETE FROM HTML WHERE uuid=?")) {
                 statement.setString(1, uuid);
@@ -87,7 +97,7 @@ public class DAODBHTML implements HTMLDAO {
         String uuidConsulta = uuid;
         String ret = "";
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT content FROM HTML WHERE uuid=?")) {
                 statement.setString(1, uuidConsulta);
@@ -108,9 +118,12 @@ public class DAODBHTML implements HTMLDAO {
 
     @Override
     public Set<String> list() throws SQLConnectionException {
+    	System.out.println("/////////////////////////////////////////////////////////////////");
+    	System.out.println("listaaaaa");
+    	System.out.println("/////////////////////////////////////////////////////////////////");
         Set<String> uuid = new HashSet<>();
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT uuid FROM HTML")) {
 
@@ -135,7 +148,7 @@ public class DAODBHTML implements HTMLDAO {
         Set<String> uuid = new HashSet<>();
         boolean existe = false;
         try (Connection connection = DriverManager.getConnection(
-                DB_URL, DB_USER, DB_PASSWORD)) {
+                dbUrl, dbUser, dbPassword)) {
             try (PreparedStatement statement = connection.prepareStatement(
                     "SELECT uuid FROM HTML")) {
 
