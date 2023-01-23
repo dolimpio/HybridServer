@@ -21,8 +21,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.net.ContentHandler;
-import java.util.logging.Handler;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
@@ -41,14 +39,20 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 public class XMLConfigurationLoader {
+
+	//Constructor vacio
+	public XMLConfigurationLoader(){
+	}
+
 	public Configuration load(File xmlFile) throws Exception {
 		Configuration myconfi = new Configuration();
 		try {
+			System.out.println("PRE PARSE AND");
 			myconfi = parseAndValidateWithExternalXSD(xmlFile, "./configuration.xsd", new GeneralContentHandler());
 		} catch (Exception e) {
 			throw new Exception("Error al cargar el configuration");
 		}
-		
+		System.out.println(myconfi.toString());
 		return myconfi;
 	}
 	public static String transformWithXSLT(File xml, File xslt)throws TransformerException {
@@ -75,6 +79,6 @@ public class XMLConfigurationLoader {
 		try (FileReader fileReader = new FileReader(xmlPath)) {
 			xmlReader.parse(new InputSource(fileReader));
 		}
-		return handler.geConfiguration();
+		return handler.getConfiguration();
 	}
 }

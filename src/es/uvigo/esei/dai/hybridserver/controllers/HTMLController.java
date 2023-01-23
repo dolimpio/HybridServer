@@ -1,11 +1,16 @@
 package es.uvigo.esei.dai.hybridserver.controllers;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-
+import es.uvigo.esei.dai.hybridserver.HybridServerService;
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.ServerConnection;
+import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBHTML;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.HTMLDAO;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
@@ -16,10 +21,16 @@ public class HTMLController {
     private HTTPRequest request;
     private DAODBHTML dao;
     private HTTPResponse response;
-
-    public HTMLController(DAODBHTML dao) {
+    private List<ServerConfiguration> servers;
+    private List<HybridServerService> services;
+    private ServerConnection connection;
+    
+    public HTMLController(DAODBHTML dao,List<ServerConfiguration> servers) {
         this.dao = dao;
+        this.servers = servers;
         response = new HTTPResponse();
+        this.services = new ArrayList<HybridServerService>();
+        this.connection = new ServerConnection(this.servers);
     }
     
     public void setRequest(HTTPRequest request){
@@ -36,7 +47,7 @@ public class HTMLController {
 		return uuid.toString();
 	}
 
-    public void getMethodHTML() throws SQLConnectionException {
+    public void getMethodHTML() throws SQLConnectionException, MalformedURLException {
 
         System.out.println("\n\nCONTENIDO DEL GET: " + request.toString() + "\n\n");
         
@@ -69,6 +80,11 @@ public class HTMLController {
                 String uuidProximo = it.next().toString();
                 listaContent += "<li>" + uuidProximo + "</li>";
             }
+           services = connection.connectToServers();
+           for (HybridServerService serverIt : services) {
+        	   listaContent += "<li>" + serverIt.getListHTML() + "</li>";
+           }
+           
             String htmlPage = "<html><head> <title>List</title> </head>"
                     + "<body>" + "<ul>" + listaContent + "</ul>" + "</body></html>";
             response.setContent(htmlPage);

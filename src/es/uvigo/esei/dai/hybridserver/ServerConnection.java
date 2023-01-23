@@ -1,0 +1,49 @@
+package es.uvigo.esei.dai.hybridserver;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.ws.Service;
+import javax.xml.namespace.QName;
+
+import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
+
+public class ServerConnection {
+/* 	String name,
+	String wsdl,
+	String namespace,
+	String service,
+	String httpAddress */
+	List<ServerConfiguration> serverConfiguration;
+	List<HybridServerService> services;
+
+	public ServerConnection(List<ServerConfiguration> servers) {
+		this.serverConfiguration = servers;
+		this.services = new ArrayList<>();
+	}
+	
+	public List<HybridServerService> connectToServers()  throws MalformedURLException {
+		for (ServerConfiguration server : serverConfiguration) {
+			URL url = new URL(server.getWsdl()); 
+			QName name = new QName(server.getNamespace(),server.getService());
+			Service service = Service.create(url, name);
+			HybridServerService hybridServ = service.getPort(HybridServerService.class);
+			services.add(hybridServ);
+		}
+		return services;
+	}
+
+	public void print(){
+
+		for (ServerConfiguration server : serverConfiguration) {
+			System.out.println("Configuracion para el server: " + server.getName());
+			System.out.println("El wsld del server es: " + server.getWsdl());
+			System.out.println("El namespace del server es: " + server.getNamespace());
+			System.out.println("El service del server es: " + server.getService());
+			System.out.println("El httpAddress del server es: " + server.getHttpAddress());
+
+		}
+	}
+		
+}

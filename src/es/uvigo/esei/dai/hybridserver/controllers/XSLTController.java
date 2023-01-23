@@ -1,10 +1,12 @@
 package es.uvigo.esei.dai.hybridserver.controllers;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXML;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSD;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSLT;
@@ -20,11 +22,13 @@ public class XSLTController {
     private HTTPResponse response;
     private DAODBXSLT dao;
     private DAODBXSD daoXSD;
+    private List<ServerConfiguration> servers;
 
-    public XSLTController(DAODBXSLT dao, DAODBXSD daoXSD) {
+    public XSLTController(DAODBXSLT dao, DAODBXSD daoXSD,List<ServerConfiguration> servers) {
         this.dao = dao;
         this.daoXSD = daoXSD;
         this.response = new HTTPResponse();
+        this.servers = servers;
     }
 
     public void setRequest(HTTPRequest request) {

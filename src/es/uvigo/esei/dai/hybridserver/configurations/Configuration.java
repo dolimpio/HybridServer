@@ -118,4 +118,8 @@ public class Configuration {
 	public void setServers(List<ServerConfiguration> servers) {
 		this.servers = servers;
 	}
+
+	public String toString(){
+		return this.getWebServiceURL().toString();
+	}
 }

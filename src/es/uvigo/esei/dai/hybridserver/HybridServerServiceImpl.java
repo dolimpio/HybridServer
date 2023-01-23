@@ -1,7 +1,6 @@
 package es.uvigo.esei.dai.hybridserver;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.jws.WebService;
 
@@ -13,10 +12,10 @@ import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSLTDAO;
 @WebService(endpointInterface = "es.uvigo.esei.dai.hybridserver.HybridServerService")
 public class HybridServerServiceImpl implements HybridServerService{
 
-        HTMLDAO daoHTML;
-        XMLDAO daoXML;
-        XSLTDAO daoXSLT;
-        XSDDAO daoXSD;
+        public HTMLDAO daoHTML;
+        public XMLDAO daoXML;
+        public XSLTDAO daoXSLT;
+        public XSDDAO daoXSD;
 
     public HybridServerServiceImpl(HTMLDAO daoHTML, XMLDAO daoXML, XSLTDAO daoXSLT, XSDDAO daoXSD){
         this.daoHTML = daoHTML;

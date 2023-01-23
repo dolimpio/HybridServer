@@ -62,6 +62,7 @@ public class HybridServer {
 	Endpoint endpoint;
 
 	public HybridServer() {
+		System.out.println("ENTRA EN EL CONSTRUCTOR DE HHYBRID???'");
 
 		daoHTML = new DAODBHTML();
 		daoXML = new DAODBXML();
@@ -77,6 +78,7 @@ public class HybridServer {
 	}
 
 	public HybridServer(Configuration conf) {
+		System.out.println("ENTRA EN EL CONSTRUCTOR DE HHYBRID???'");
 		daoHTML = new DAODBHTML();
 		daoXML = new DAODBXML();
 		daoXSLT = new DAODBXSLT();
@@ -88,12 +90,13 @@ public class HybridServer {
 		dbUser = conf.getDbUser();
 		dbPassword = conf.getDbPassword();
 		numHilos = conf.getNumClients();
-
 		moreServers = conf.getServers();
 
 	}
 
 	public HybridServer(Properties properties) {
+		System.out.println("ENTRA EN EL CONSTRUCTOR DE HHYBRID???'");
+
 		daoHTML = new DAODBHTML();
 		daoXML = new DAODBXML();
 		daoXSLT = new DAODBXSLT();
@@ -122,7 +125,9 @@ public class HybridServer {
 	}
 
 	public void start() {
-
+		System.out.println("ENTRA EN EL CONSTRUCTOR DE HHYBRID???'");
+		ServerConnection sc = new ServerConnection(moreServers);
+		sc.print();
 		if(webService != null){
 			endpoint = Endpoint.publish(
 				webService,
@@ -139,7 +144,7 @@ public class HybridServer {
 						Socket clientSocket = serverSocket.accept();
 						if (stop)
 							break;
-						threadPool.execute(new ServiceThread(clientSocket, daoHTML, daoXML, daoXSLT, daoXSD));
+						threadPool.execute(new ServiceThread(clientSocket, daoHTML, daoXML, daoXSLT, daoXSD,moreServers));
 
 					}
 				} catch (IOException e) {
@@ -173,5 +178,8 @@ public class HybridServer {
 			e.printStackTrace();
 		}
 		this.serverThread = null;
+		if(endpoint != null){
+			endpoint.stop();
+		}
 	}
 }

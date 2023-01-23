@@ -1,10 +1,12 @@
 package es.uvigo.esei.dai.hybridserver;
-
+import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.List;
+
 import es.uvigo.esei.dai.hybridserver.controllers.HTMLController;
 import es.uvigo.esei.dai.hybridserver.controllers.XMLController;
 import es.uvigo.esei.dai.hybridserver.controllers.XSDController;
@@ -27,6 +29,7 @@ public class ServiceThread implements Runnable {
     private final Socket socket;
     private final BufferedReader reader;
     private final PrintWriter writer;
+    private List<ServerConfiguration> servers;
     DAODBHTML daoHTML;
     DAODBXML daoXML;
     DAODBXSLT daoXSLT;
@@ -35,19 +38,20 @@ public class ServiceThread implements Runnable {
     XMLController xmlController;
     XSDController xsdController;
     XSLTController xsltController;
-
-    public ServiceThread(Socket clientSocket, DAODBHTML daoHTML, DAODBXML daoXML, DAODBXSLT daoXSLT, DAODBXSD daoXSD)
+    
+    
+    public ServiceThread(Socket clientSocket, DAODBHTML daoHTML, DAODBXML daoXML, DAODBXSLT daoXSLT, DAODBXSD daoXSD,List<ServerConfiguration> servers)
             throws IOException {
 
         this.daoHTML = daoHTML;
         this.daoXML = daoXML;
         this.daoXSLT = daoXSLT;
         this.daoXSD = daoXSD;
-
-        htmlController = new HTMLController(daoHTML);
-        xmlController = new XMLController(daoXML);
-        xsdController = new XSDController(daoXSD);
-        xsltController = new XSLTController(daoXSLT, daoXSD);
+        this.servers = servers;
+        htmlController = new HTMLController(daoHTML,servers);
+        xmlController = new XMLController(daoXML,servers);
+        xsdController = new XSDController(daoXSD,servers);
+        xsltController = new XSLTController(daoXSLT, daoXSD,servers);
 
         this.socket = clientSocket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));

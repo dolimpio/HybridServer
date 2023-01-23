@@ -128,7 +128,7 @@ public class GeneralContentHandler implements ContentHandler{
     @Override
     public void skippedEntity(String name) throws SAXException {}
 
-    public Configuration geConfiguration(){
+    public Configuration getConfiguration(){
         return this.myConfiguration;
     }
 }

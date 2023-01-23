@@ -1,11 +1,13 @@
 package es.uvigo.esei.dai.hybridserver.controllers;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 
 import es.uvigo.esei.dai.hybridserver.SQLConnectionException;
+import es.uvigo.esei.dai.hybridserver.configurations.ServerConfiguration;
 import es.uvigo.esei.dai.hybridserver.daos.implementations.DAODBXSD;
 import es.uvigo.esei.dai.hybridserver.daos.interfaces.XSDDAO;
 import es.uvigo.esei.dai.hybridserver.http.HTTPRequest;
@@ -16,10 +18,12 @@ public class XSDController {
     private HTTPRequest request;
     private DAODBXSD dao;
     private HTTPResponse response;
-
-    public XSDController(DAODBXSD dao){
+    private List<ServerConfiguration> servers;
+    
+    public XSDController(DAODBXSD dao,List<ServerConfiguration> servers){
         this.dao = dao;
         this.response = new HTTPResponse();
+        this.servers = servers;
     }
     public void setRequest(HTTPRequest request){
         this.request = request;

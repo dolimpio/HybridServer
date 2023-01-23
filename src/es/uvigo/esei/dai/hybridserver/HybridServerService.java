@@ -34,7 +34,8 @@ public interface HybridServerService {
     
     @WebMethod
     public String getXSLT(String uuid) throws SQLConnectionException;
-
+    
+    @WebMethod
     public String getXSDwithXSLT(String uuid) throws SQLConnectionException;
 
 }
